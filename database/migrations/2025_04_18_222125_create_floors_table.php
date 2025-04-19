@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,7 +14,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedInteger('number')->unique(); // could be the PK
-            $table->foreignId('manager_id')->constrained('base_users')->cascadeOnDelete();
+            $table->foreignId('manager_id')->constrained('base_users');
             $table->timestamps();
             $table->softDeletes();
         });

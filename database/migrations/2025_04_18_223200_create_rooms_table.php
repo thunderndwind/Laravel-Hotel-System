@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,8 +15,8 @@ return new class extends Migration
             $table->unsignedInteger('number')->unique(); // could be the PK
             $table->unsignedInteger('price');
             $table->unsignedInteger('capacity');
-            $table->foreignId('manager_id')->constrained('base_users')->cascadeOnDelete();
-            $table->foreignId('floor_id')->constrained('floors')->cascadeOnDelete();
+            $table->foreignId('manager_id')->constrained('base_users');
+            $table->foreignId('floor_id')->constrained('floors');
             $table->timestamps();
             $table->softDeletes();
         });
