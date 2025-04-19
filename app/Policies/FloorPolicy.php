@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Floor;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FloorPolicy
 {
@@ -13,7 +14,9 @@ class FloorPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+
+        return $user->hasAnyRole(['Admin', 'Manager']);
+        // return false;
     }
 
     /**

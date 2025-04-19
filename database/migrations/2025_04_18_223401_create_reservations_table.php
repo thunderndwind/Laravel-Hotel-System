@@ -16,9 +16,8 @@ return new class extends Migration {
             $table->unsignedInteger('accompany_number');
             $table->date('check_in_date');
             $table->date('check_out_date');
-            $table->enum('status', ['pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled']);
-            $table->foreignId('user_id')->constrained('base_users')->cascadeOnDelete();
-            $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('room_id')->constrained('rooms');
             $table->timestamps();
             $table->softDeletes();
         });

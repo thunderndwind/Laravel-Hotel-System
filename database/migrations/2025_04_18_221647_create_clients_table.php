@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->enum('gender', ['male', 'female']);
             $table->nullableMorphs('approver'); // type and id
             $table->timestamp('approved_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('country', 30);
         });
     }
