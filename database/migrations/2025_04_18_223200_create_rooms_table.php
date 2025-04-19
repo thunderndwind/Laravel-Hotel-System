@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->unsignedInteger('number')->unique(); // could be the PK
             $table->unsignedInteger('price');
             $table->unsignedInteger('capacity');
-            $table->foreignId('manager_id')->constrained('base_users');
+            $table->foreignId('manager_id')->constrained('users');
             $table->foreignId('floor_id')->constrained('floors');
             $table->timestamps();
             $table->softDeletes();

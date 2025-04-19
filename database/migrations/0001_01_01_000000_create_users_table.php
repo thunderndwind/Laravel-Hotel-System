@@ -15,8 +15,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->morph('profile'); // type and id
-            $table->unique(['profile_type', 'profile_id']);
+            $table->morphs('profile'); // type and id
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
