@@ -9,7 +9,7 @@ class Client extends Model
 {
     /** @use HasFactory<\Database\Factories\ClientFactory> */
     use HasFactory;
-
+    public $timestamps = false;
 
     //=========== mass assignable ===========
     protected $fillable = [
@@ -90,8 +90,4 @@ class Client extends Model
 
     //     $this->user->notify(new ClientApprovedNotification);
     // }
-
-
-
-
 }

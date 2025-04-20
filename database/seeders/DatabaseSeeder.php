@@ -37,13 +37,13 @@ class DatabaseSeeder extends Seeder
             'manage-clients',
             'view-reservations'
         ];
-        
+
         foreach ($permissions as $permissionName) {
             Permission::firstOrCreate(['name' => $permissionName]);
         }
 
         Role::findByName('manager')->givePermissionTo([
-            'manage-rooms', 
+            'manage-rooms',
             'approve-reservation',
             'manage-floors',
 
