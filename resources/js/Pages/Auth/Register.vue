@@ -9,7 +9,7 @@
         
         <!-- Left Section (Image + Overlay) -->
         <div class="relative hidden md:block">
-          <div class="absolute inset-0 bg-teal-700 bg-opacity-80 z-10"></div>
+          <div class="absolute inset-0 bg-teal-700 bg-opacity-40 z-10"></div>
           <img
             src="/statics/8847e476-2174-410d-91b4-4ce06e902c2c.jpeg"
             alt="Background"
@@ -109,7 +109,7 @@
   /* Blurred background image */
   .blur-background {
     background-image: url('/statics/8847e476-2174-410d-91b4-4ce06e902c2c.jpeg');
-    filter: blur(5px);
+    filter: blur(10px);
     position: fixed;
     width: 100%;
     height: 100%;
