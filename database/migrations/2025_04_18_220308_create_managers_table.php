@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('national_id', 50);
             $table->string('phone_number', 20);
             $table->string('avatar_image');
+            //$table->timestamps();
         });
     }
 

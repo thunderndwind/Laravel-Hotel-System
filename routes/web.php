@@ -32,7 +32,12 @@ Route::get('/register', [RegisteredUserController::class, 'create'])
     ->name('register');
 
 
-Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
+Route::middleware(['role:manager'])->group(function () {
+
+    Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
+});
+   
+
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
 Route::resource('floors', FloorController::class)
     ->middleware(['auth', 'verified']);
