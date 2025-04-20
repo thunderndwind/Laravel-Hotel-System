@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FloorController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -38,8 +39,39 @@ Route::middleware(['role:manager'])->group(function () {
 });
    
 
+///===================================================== Client Routes =========================================================
+
+
+Route::resource('clients', ClientController::class)
+    ->middleware('auth')
+    ->except(['create', 'store']);
+
+// Registration routes (no auth)
+Route::get('register', [ClientController::class, 'create'])
+    ->name('clients.create')
+    ->middleware('guest');
+    
+Route::post('register', [ClientController::class, 'store'])
+    ->name('clients.store')
+    ->middleware('guest');
+
+// Approval route
+Route::post('clients/{client}/approve', [ClientController::class, 'approve'])
+    ->name('clients.approve')
+    ->middleware('auth');
+
+// Reservations route
+Route::get('clients/{client}/reservations', [ClientController::class, 'reservations'])
+    ->name('clients.reservations')
+    ->middleware('auth');
+    
+//=============================================================================
+
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
 Route::resource('floors', FloorController::class)
     ->middleware(['auth', 'verified']);
+
+
+    
 
 require __DIR__ . '/auth.php';

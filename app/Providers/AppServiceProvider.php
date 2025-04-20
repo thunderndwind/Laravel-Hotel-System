@@ -34,10 +34,3 @@ class AppServiceProvider extends ServiceProvider
         Route::aliasMiddleware('permission', PermissionMiddleware::class);
     }
 }
-
-
-
-
-
-
-
