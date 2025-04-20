@@ -24,6 +24,7 @@ class StripeController extends Controller
                 'amount' => 'required|numeric|min:1',
                 'email' => 'required|email',
                 'name' => 'required|string',
+                'specialRequests' => 'nullable|string',
             ]);
 
             Stripe::setApiKey(config('services.stripe.secret'));
@@ -44,11 +45,12 @@ class StripeController extends Controller
                 'metadata' => [
                     'customer_name' => $validated['name'],
                     'customer_email' => $validated['email'],
+                    'special_requests' => $validated['specialRequests'] ?? '',
                 ],
             ]);
 
-            // Return successful response
-            return response()->json([
+            // Return successful response for Inertia XHR request
+            return back()->with([
                 'success' => true,
                 'message' => 'Payment successful!',
                 'data' => [
@@ -58,11 +60,11 @@ class StripeController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            // Return error response
-            return response()->json([
+            // Return error response for Inertia XHR request
+            return back()->with([
                 'success' => false,
                 'message' => 'Payment failed: ' . $e->getMessage(),
-            ], 500);
+            ])->withErrors(['payment' => $e->getMessage()]);
         }
     }
 }
