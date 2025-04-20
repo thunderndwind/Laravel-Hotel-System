@@ -65,6 +65,16 @@
                   required
                 />
               </div>
+              <div class="col-span-2">
+                <label for="specialRequests" class="block text-sm font-medium text-gray-700 mb-1">Special Requests</label>
+                <textarea
+                  id="specialRequests"
+                  v-model="booking.specialRequests"
+                  rows="4"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter any special requests or notes..."
+                ></textarea>
+              </div>
             </div>
           </div>
           
@@ -94,46 +104,14 @@
         </form>
       </div>
     </div>
-    
-    <!-- Success Modal -->
-    <div v-if="showSuccessModal" class="fixed inset-0 z-10 overflow-y-auto">
-      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-          <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-        </div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="sm:flex sm:items-start">
-              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
-                <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Payment Successful!</h3>
-                <div class="mt-2">
-                  <p class="text-sm text-gray-500">
-                    Your payment of ${{ amount }} has been processed successfully. A receipt has been sent to your email.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button @click="handleContinue" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-              Continue
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
+  
 </template>
 
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
+import ToastService from '@/Services/ToastService'
 
 // Constants & state
 const amount = 100
@@ -149,6 +127,11 @@ const billing = ref({
   firstName: '',
   lastName: '',
   email: ''
+})
+
+// Booking info with special requests
+const booking = ref({
+  specialRequests: 'I would like a room with a view if possible.'
 })
 
 // Initialize Stripe
@@ -222,6 +205,9 @@ const handleSubmit = async () => {
     return
   }
   
+  // Show loading toast
+  const toastId = ToastService.loading('Processing Payment', 'Please wait while we process your payment...');
+  
   try {
     // Create token
     const { token, error } = await stripe.value.createToken(card.value, {
@@ -232,6 +218,7 @@ const handleSubmit = async () => {
     if (error) {
       formError.value = error.message
       loading.value = false
+      ToastService.loadingToError(toastId, 'Payment Failed', error.message);
       return
     }
     
@@ -240,28 +227,62 @@ const handleSubmit = async () => {
       stripeToken: token.id,
       amount: amount * 100, // Convert to cents
       email: billing.value.email,
-      name: `${billing.value.firstName} ${billing.value.lastName}`
+      name: `${billing.value.firstName} ${billing.value.lastName}`,
+      specialRequests: booking.value.specialRequests
     }, {
       onFinish: () => loading.value = false,
-      onSuccess: () => {
-        showSuccessModal.value = true
+      onSuccess: (page) => {
+        // Debug response data
+        console.log('Payment response:', page.props);
+        
+        // Always treat onSuccess as a successful payment
+        // Convert loading toast to success
+        ToastService.loadingToSuccess(toastId, 'Payment Successful!', 'Your payment has been processed.');
+        
+        // Show success message with details
+        setTimeout(() => {
+          ToastService.success('Booking Confirmed', 'Thank you for your booking. A confirmation email has been sent.');
+        }, 1000);
+        
+        // Reset form
+        resetForm();
       },
       onError: (errors) => {
-        formError.value = 'Payment processing failed. Please try again.'
-        console.error(errors)
+        const errorMessage = errors.payment || 'Payment processing failed. Please try again.';
+        formError.value = errorMessage;
+        console.error(errors);
+        ToastService.loadingToError(toastId, 'Payment Failed', errorMessage);
       }
-    })
+    });
   } catch (err) {
-    formError.value = 'An unexpected error occurred. Please try again.'
-    loading.value = false
-    console.error(err)
+    formError.value = 'An unexpected error occurred. Please try again.';
+    loading.value = false;
+    console.error(err);
+    ToastService.loadingToError(toastId, 'Payment Failed', 'An unexpected error occurred.');
   }
+}
+
+// Reset form after successful payment
+const resetForm = () => {
+  billing.value = {
+    firstName: '',
+    lastName: '',
+    email: ''
+  }
+  
+  booking.value.specialRequests = ''
+  
+  if (card.value) {
+    card.value.clear();
+  }
+  
+  formError.value = '';
+  loading.value = false;
 }
 
 // Continue after successful payment
 const handleContinue = () => {
-  showSuccessModal.value = false
-  router.visit('/') // Navigate to home or another page
+  router.visit('/')
 }
 </script>
   
