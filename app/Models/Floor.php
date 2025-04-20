@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Permission\Traits\HasRoles;
 
 
 class Floor extends Model
@@ -15,11 +14,10 @@ class Floor extends Model
 
     protected $fillable = ['name', 'number', 'manager_id'];
 
-    // public function manager()
-    // {
-    //     return $this->belongsTo(BaseUser::class)
-    //         ->whereHas('roles', fn($q) => $q->whereIn('name', ['Admin', 'Manager']));
-    // }
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
 
     public function rooms()
     {
@@ -39,5 +37,10 @@ class Floor extends Model
     {
         $lastNumber = self::withTrashed()->max('number') ?? 999;
         return $lastNumber + 1; // Ensures 4-digit minimum
+    }
+
+    public function scopeWithValidManager($query)
+    {
+        return $query->whereHas('manager', fn($q) => $q->role(['Admin', 'Manager']));
     }
 }

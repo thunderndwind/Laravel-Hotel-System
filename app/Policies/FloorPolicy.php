@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Models\Floor;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
-use Illuminate\Auth\Access\HandlesAuthorization;
+
 
 class FloorPolicy
 {
@@ -14,9 +14,8 @@ class FloorPolicy
      */
     public function viewAny(User $user): bool
     {
-
-        return $user->hasAnyRole(['Admin', 'Manager']);
-        // return false;
+        // Change from roles to permissions
+        return $user->hasPermissionTo('view floors');
     }
 
     /**
@@ -32,7 +31,7 @@ class FloorPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('create floors');
     }
 
     /**
@@ -40,15 +39,32 @@ class FloorPolicy
      */
     public function update(User $user, Floor $floor): bool
     {
-        return false;
+        if (!$user->hasPermissionTo('edit floors')) {
+            return false;
+        }
+
+        // Keep manager-specific logic
+        if ($user->hasRole('Manager')) {
+            return $floor->manager_id === $user->id;
+        }
+
+        return true;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Floor $floor): bool
+    public function delete(User $user, Floor $floor): Response
     {
-        return false;
+        if ($floor->rooms()->exists()) {
+            return Response::deny('Cannot delete floor with rooms.');
+        }
+
+        $allowed = $user->hasPermissionTo('delete floors') &&
+            ($user->hasRole('Admin') ||
+                ($user->hasRole('Manager') && $floor->manager_id === $user->id));
+
+        return $allowed ? Response::allow() : Response::deny();
     }
 
     /**
@@ -56,7 +72,7 @@ class FloorPolicy
      */
     public function restore(User $user, Floor $floor): bool
     {
-        return false;
+        return $user->hasPermissionTo('restore floors');
     }
 
     /**
