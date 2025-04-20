@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\StripeController;
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -28,6 +30,8 @@ Route::get('/register', [RegisteredUserController::class, 'create'])
     ->middleware('guest')
     ->name('register');
 
-Route::post('/register', [RegisteredUserController::class, 'store'])
-    ->middleware('guest');
-require __DIR__.'/auth.php';
+
+Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
+Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
+
+require __DIR__ . '/auth.php';
