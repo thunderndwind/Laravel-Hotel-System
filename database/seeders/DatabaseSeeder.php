@@ -24,39 +24,8 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $roles = ['admin', 'manager', 'client', 'receptionist'];
-        foreach ($roles as $roleName) {
-            Role::firstOrCreate(['name' => $roleName]);
-        }
-
-        $permissions = [
-            'manage-rooms',
-            'approve-reservation',
-            'manage-floors',
-            'manage-receptionists',
-            'manage-clients',
-            'view-reservations'
-        ];
-
-        foreach ($permissions as $permissionName) {
-            Permission::firstOrCreate(['name' => $permissionName]);
-        }
-
-        Role::findByName('manager')->givePermissionTo([
-            'manage-rooms',
-            'approve-reservation',
-            'manage-floors',
-
-        ]);
-
-        Role::findByName('receptionist')->givePermissionTo([
-            'approve-reservation',
-            'view-reservations'
-        ]);
-
-        Role::findByName('admin')->givePermissionTo(Permission::all());
-
-
+        $this->call(RoleAndPermissionSeeder::class);
         $this->call(ManagerSeeder::class);
+        
     }
 }

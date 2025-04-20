@@ -24,20 +24,14 @@ class ManagerSeeder extends Seeder
         ]);
         
         $managerUser = new User([
-            'name' => 'Nouran',
-            'email' => 'nouran@gmail.com',
-            'password' => Hash::make('12345'),
+            'name' => 'nour',
+            'email' => 'nourann@gmail.com',
+            'password' => Hash::make('12345678'),
         ]);
         
         $managerUser->profile()->associate($manager);
         $managerUser->save(); 
         
         $managerUser->assignRole('manager');
-        $managerUser->givePermissionTo([
-            'manage-rooms',
-            'approve-reservation',
-            'manage-floors',
-        ]);
-        
     }
 }
