@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\FloorController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\StripeController;
@@ -33,5 +34,7 @@ Route::get('/register', [RegisteredUserController::class, 'create'])
 
 Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
+Route::resource('floors', FloorController::class)
+    ->middleware(['auth', 'verified']);
 
 require __DIR__ . '/auth.php';
