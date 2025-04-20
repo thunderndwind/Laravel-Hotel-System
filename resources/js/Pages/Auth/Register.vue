@@ -24,26 +24,26 @@
   
           <form @submit.prevent="submit" class="space-y-4">
             <!-- Name -->
-            <input v-model="form.name" type="text" placeholder="Full Name" class="form-input" required />
+            <input v-model="form.name" type="text" placeholder="Full Name" class="form-input"  />
             <p v-if="form.errors.name" class="error-msg">{{ form.errors.name }}</p>
   
             <!-- Email -->
-            <input v-model="form.email" type="email" placeholder="Email Address" class="form-input" required />
+            <input v-model="form.email" type="email" placeholder="Email Address" class="form-input"  />
             <p v-if="form.errors.email" class="error-msg">{{ form.errors.email }}</p>
   
             <!-- Password -->
-            <input v-model="form.password" type="password" placeholder="Password" class="form-input" required />
+            <input v-model="form.password" type="password" placeholder="Password" class="form-input"  />
             <p v-if="form.errors.password" class="error-msg">{{ form.errors.password }}</p>
   
             <!-- Confirm Password -->
-            <input v-model="form.password_confirmation" type="password" placeholder="Confirm Password" class="form-input" required />
+            <input v-model="form.password_confirmation" type="password" placeholder="Confirm Password" class="form-input"  />
   
             <!-- Avatar -->
             <input type="file" @input="form.avatar_image = $event.target.files[0]" class="form-input" />
             <p v-if="form.errors.avatar_image" class="error-msg">{{ form.errors.avatar_image }}</p>
   
             <!-- Phone -->
-            <input v-model="form.phone_number" type="tel" placeholder="Phone Number" class="form-input" required />
+            <input v-model="form.phone_number" type="tel" placeholder="Phone Number" class="form-input"  />
             <p v-if="form.errors.phone_number" class="error-msg">{{ form.errors.phone_number }}</p>
   
             <!-- Gender -->
@@ -53,7 +53,7 @@
             </select>
   
             <!-- Country -->
-            <input v-model="form.country" type="text" placeholder="Country" class="form-input" required />
+            <input v-model="form.country" type="text" placeholder="Country" class="form-input"  />
             <p v-if="form.errors.country" class="error-msg">{{ form.errors.country }}</p>
   
             <button
@@ -136,11 +136,6 @@
     color: red;
     font-size: 0.875rem;
   }
-  .error-msg::before {
-    content: '⚠️ ';
-  }
-  .error-msg::after {
-    content: ' ❗';
-  }
+
   </style>
   
