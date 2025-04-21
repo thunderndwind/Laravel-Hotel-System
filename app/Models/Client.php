@@ -9,6 +9,7 @@ class Client extends Model
 {
     /** @use HasFactory<\Database\Factories\ClientFactory> */
     use HasFactory;
+    public $timestamps = false;
 
 
     //=========== mass assignable ===========
@@ -17,6 +18,7 @@ class Client extends Model
         'avatar_image',
          'phone_number', 
          'gender', 
+         'country',
          'approver_type', 
          'approver_id', 
          'approved_at', 

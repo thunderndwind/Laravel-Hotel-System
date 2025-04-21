@@ -15,7 +15,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 class RegisteredUserController extends Controller
-{
+{    public $timestamps = false;
     /**
      * Display the registration view.
      */
@@ -45,6 +45,7 @@ class RegisteredUserController extends Controller
     $avatarImagePath = $request->file('avatar_image')->store('avatars', 'public');
 
     $client = new Client([
+        'name' => $request->name,
         'avatar_image' => $avatarImagePath,
         'phone_number' => $request->phone_number,
         'gender' => $request->gender,
