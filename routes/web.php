@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FloorController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoomController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\ReceptionistController;
@@ -84,14 +85,16 @@ Route::get('clients/{client}/reservations', [ClientController::class, 'reservati
 //=============================================================================
 
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
-Route::resource('floors', FloorController::class)
-    ->middleware(['auth', 'verified']);
+
 Route::get('/test-approved-clients', [ReceptionistController::class, 'testApprovedClients']);
 Route::get('/test-pending-clients', [ReceptionistController::class, 'testPendingClients']);
 Route::get('/test-client-reservations', [ReceptionistController::class, 'testClientReservations']);
 
+Route::middleware(['auth'])->group(function () {
 
-
+    Route::resource('floors', FloorController::class);
+    Route::resource('rooms', RoomController::class);
+});
 
 require __DIR__ . '/auth.php';
-require __DIR__.'/managers.php';
+require __DIR__ . '/managers.php';

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Room;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRoomRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreRoomRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,15 @@ class StoreRoomRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'price' => ['required', 'integer', 'min:0'],
+            'capacity' => ['required', 'integer', 'min:1'],
+            'manager_id' => [
+                'required',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->role(['Admin', 'Manager']);
+                }),
+            ],
+            'floor_id' => ['required', 'exists:floors,id'],
         ];
     }
 }

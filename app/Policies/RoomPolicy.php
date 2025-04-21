@@ -13,7 +13,7 @@ class RoomPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('view rooms');
     }
 
     /**
@@ -21,7 +21,7 @@ class RoomPolicy
      */
     public function view(User $user, Room $room): bool
     {
-        return false;
+        return $user->hasPermissionTo('view rooms');
     }
 
     /**
@@ -29,7 +29,7 @@ class RoomPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('create rooms');
     }
 
     /**
@@ -37,15 +37,31 @@ class RoomPolicy
      */
     public function update(User $user, Room $room): bool
     {
-        return false;
+        if (!$user->hasPermissionTo('edit rooms')) {
+            return false;
+        }
+
+        if ($user->hasRole('Manager')) {
+            return $room->manager_id === $user->id;
+        }
+
+        return true;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Room $room): bool
+    public function delete(User $user, Room $room): Response
     {
-        return false;
+        if ($room->reservations()->exists()) {
+            return Response::deny('Cannot delete room with active reservations.');
+        }
+
+        $allowed = $user->hasPermissionTo('delete rooms') &&
+            ($user->hasRole('Admin') ||
+                ($user->hasRole('Manager') && $room->manager_id === $user->id));
+
+        return $allowed ? Response::allow() : Response::deny();
     }
 
     /**
@@ -53,7 +69,7 @@ class RoomPolicy
      */
     public function restore(User $user, Room $room): bool
     {
-        return false;
+        return $user->hasPermissionTo('restore rooms');
     }
 
     /**
