@@ -12,10 +12,26 @@ return new class extends Migration {
     {
         Schema::create('receptionists', function (Blueprint $table) {
             $table->id();
-            $table->string('national_id', 50);
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('national_id', 50)->unique();
             $table->string('phone_number', 20);
-            $table->string('avatar_image');
+            $table->string('avatar_image')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('banned_at')->nullable();
+            $table->rememberToken();
+          
+        });
+        schema::create ('receptionist_client',function(Blueprint $table){
+            $table->foreignId('receptionist_id')->constrained()->onDelete('cascade');
+            $table->foreignId('client_id')->constrained()->onDelete('cascade');
+            $table->primary(['receptionist_id', 'client_id']);
+        });
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
         });
     }
 
