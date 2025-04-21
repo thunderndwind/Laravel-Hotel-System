@@ -94,3 +94,4 @@ Route::get('/test-client-reservations', [ReceptionistController::class, 'testCli
 
 
 require __DIR__ . '/auth.php';
+require __DIR__.'/managers.php';
