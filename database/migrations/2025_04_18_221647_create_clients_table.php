@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->string('avatar_image');
             $table->string('phone_number', 20);
             $table->enum('gender', ['male', 'female']);

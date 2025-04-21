@@ -18,5 +18,25 @@ class ReceptionistController extends Controller
     
         dd($receptionist->approvedClients()->get());
     }
+    public function testPendingClients()
+    {
+        $receptionist = Receptionist::find(1);
+    
+        if (!$receptionist) {
+            return response()->json(['error' => 'Receptionist not found'], 404);
+        }
+    
+        dd($receptionist->pendingClients()->get());
+    }
+    public function testClientReservations()
+    {
+        $receptionist = Receptionist::find(1);
+    
+        if (!$receptionist) {
+            return response()->json(['error' => 'Receptionist not found'], 404);
+        }
+    
+        dd($receptionist->clientReservations()->get());
+    }
     
 }

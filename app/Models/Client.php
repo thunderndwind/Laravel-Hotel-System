@@ -13,12 +13,15 @@ class Client extends Model
 
     //=========== mass assignable ===========
     protected $fillable = [
+        'name', 
         'avatar_image',
-        'phone_number',
-        'gender',
-        'country',
-        'approved_at',
-        'email_verified_at',
+         'phone_number', 
+         'gender', 
+         'approver_type', 
+         'approver_id', 
+         'approved_at', 
+         'status',
+
     ];
 
     //===========  casts dates to Carbon instances ===========   
@@ -90,7 +93,10 @@ class Client extends Model
 
     //     $this->user->notify(new ClientApprovedNotification);
     // }
-
+    public function receptionist()
+{
+    return $this->belongsTo(Receptionist::class);
+}
 
 
 

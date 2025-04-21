@@ -9,6 +9,8 @@ use App\Models\Reservation;
 class Receptionist extends Authenticatable
 {
     use HasFactory;
+    public $timestamps = false;
+
 
     protected $fillable = [
         'name',
@@ -29,34 +31,33 @@ class Receptionist extends Authenticatable
     protected $hidden = [
         'password',
     ];
+    // Get Clients
+            public function clients()
+        {
+            return $this->hasMany(Client::class);
+        }
     // Get All pending clients
     public function pendingClients()
-    {
-        return $this->hasMany(Client::class)->whereNull('approved_at');
-    }
+{
+    return $this->hasMany(Client::class)->where('status', 'pending');
+}
+
     // Get All approved clients
     public function approvedClients()
-    {
-        return $this->hasMany(Client::class)->whereNotNull('approved_at');
-    }
+{
+    return $this->hasMany(Client::class)->where('status', 'approved');
+}
     //Get All revervations for approved clients
     // public function clientReservations()
     // {
-    //     return $this->hasManyThrough(
-    //         Reservation::class,
-    //         Client::class,
-    //         'receptionist_id', // Foreign key on clients table
-    //         'client_id', // Foreign key on reservations table
-    //         'id', // Local key on receptionists table
-    //         'id' // Local key on clients table
-    //     )->whereNotNull('receptionist_client.approved_at');
+    //     return $this->hasManyThrough(Reservation::class, Client::class);
     // }
 
     // Check if receptionist has approved a specific client
     public function hasApprovedClient(Client $client): bool
     {
         return $this->approvedClients()
-            ->where('client_id', $client->id)
+            ->where('id', $client->id)  // Check the 'id' of the client, not 'client_id'
             ->exists();
     }
  

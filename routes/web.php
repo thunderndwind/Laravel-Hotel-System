@@ -38,6 +38,7 @@ Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle
 Route::resource('floors', FloorController::class)
     ->middleware(['auth', 'verified']);
 Route::get('/test-approved-clients', [ReceptionistController::class, 'testApprovedClients']);
-
+Route::get('/test-pending-clients', [ReceptionistController::class, 'testPendingClients']);
+Route::get('/test-client-reservations', [ReceptionistController::class, 'testClientReservations']);
 
 require __DIR__ . '/auth.php';
