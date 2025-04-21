@@ -19,7 +19,7 @@ class FloorController extends Controller
      */
     public function index()
     {
-        $this->authorize('viewAny', Floor::class);
+        $this->authorize('viewAny', arguments: Floor::class);
 
         return Inertia::render('Floors/Index', [
             'floors' => Floor::with('manager')

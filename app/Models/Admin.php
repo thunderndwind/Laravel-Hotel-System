@@ -21,8 +21,8 @@ class Admin extends Authenticatable
         'name',
         'email',
         'password',
-       
-      
+
+
     ];
 
     /**
@@ -47,16 +47,16 @@ class Admin extends Authenticatable
         'status' => 'boolean',
     ];
 
-   
+
 
     /**
      * Get the audit logs for this admin.
      */
-   
+
     /**
      * Scope a query to only include active admins.
      */
-  
+
 
     /**
      * Check if the admin is active.

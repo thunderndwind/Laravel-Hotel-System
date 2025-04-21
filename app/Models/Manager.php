@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Traits\HasRoles;
+
 
 class Manager extends Model
 {
     /** @use HasFactory<\Database\Factories\ManagerFactory> */
-    use HasFactory;
+    use HasFactory,HasRoles;
 
 
     //=========== mass assignable ===========
@@ -96,5 +98,7 @@ class Manager extends Model
     //     return false;
     // }
 
+
+    public $timestamps = false;
 
 }

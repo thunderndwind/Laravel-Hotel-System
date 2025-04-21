@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FloorController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -9,6 +10,14 @@ use App\Http\Controllers\ReceptionistController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+//-------------------------------------------------
+use Lwwcas\LaravelCountries\LaravelCountries; // Add this at the top
+
+
+// routes/web.php
+
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -33,12 +42,55 @@ Route::get('/register', [RegisteredUserController::class, 'create'])
     ->name('register');
 
 
-Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
+Route::middleware(['role:manager'])->group(function () {
+
+    Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
+});
+
+
+///===================================================== Client Routes =========================================================
+
+
+Route::resource('clients', ClientController::class)
+    ->middleware('auth')
+    ->except(['create', 'store']);
+
+// Registration routes (no auth)
+Route::get('register', [ClientController::class, 'create'])
+    ->name('clients.create')
+    ->middleware('guest');
+
+Route::post('register', [ClientController::class, 'store'])
+    ->name('clients.store')
+    ->middleware('guest');
+
+// Approval route
+Route::post('clients/{client}/approve', [ClientController::class, 'approve'])
+    ->name('clients.approve')
+    ->middleware('auth');
+
+// Reservations route
+Route::get('clients/{client}/reservations', [ClientController::class, 'reservations'])
+    ->name('clients.reservations')
+    ->middleware('auth');
+
+
+
+// Route::get('/test-countries', function() {
+//     return \Lwwcas\LaravelCountries\Facades\LaravelCountries::all()->pluck('name', 'iso_3166_2');
+// });
+
+
+//=============================================================================
+
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
 Route::resource('floors', FloorController::class)
     ->middleware(['auth', 'verified']);
 Route::get('/test-approved-clients', [ReceptionistController::class, 'testApprovedClients']);
 Route::get('/test-pending-clients', [ReceptionistController::class, 'testPendingClients']);
 Route::get('/test-client-reservations', [ReceptionistController::class, 'testClientReservations']);
+
+
+
 
 require __DIR__ . '/auth.php';

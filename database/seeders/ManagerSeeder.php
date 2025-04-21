@@ -5,6 +5,10 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+use App\Models\Manager;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
 class ManagerSeeder extends Seeder
 {
     /**
@@ -12,6 +16,22 @@ class ManagerSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+
+        $manager = Manager::create([
+            'national_id' => '123456789',
+            'phone_number' => '01156755044',
+            'avatar_image' => 'manager.jpg',
+        ]);
+
+        $managerUser = new User([
+            'name' => 'nouran',
+            'email' => 'nouran@gmail.com',
+            'password' => Hash::make('12345678'),
+        ]);
+
+        $managerUser->profile()->associate($manager);
+        $managerUser->save();
+
+        $managerUser->assignRole('manager');
     }
 }

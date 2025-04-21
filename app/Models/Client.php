@@ -11,18 +11,17 @@ class Client extends Model
     use HasFactory;
     public $timestamps = false;
 
-
     //=========== mass assignable ===========
     protected $fillable = [
-        'name', 
+        'name',
         'avatar_image',
-         'phone_number', 
-         'gender', 
-         'country',
-         'approver_type', 
-         'approver_id', 
-         'approved_at', 
-         'status',
+        'phone_number',
+        'gender',
+        'country',
+        'approver_type',
+        'approver_id',
+        'approved_at',
+        'status',
 
     ];
 
@@ -96,9 +95,9 @@ class Client extends Model
     //     $this->user->notify(new ClientApprovedNotification);
     // }
     public function receptionist()
-{
-    return $this->belongsTo(Receptionist::class);
-}
+    {
+        return $this->belongsTo(Receptionist::class);
+    }
 
 
 
