@@ -70,10 +70,15 @@ Route::post('clients/{client}/approve', [ClientController::class, 'approve'])
     ->name('clients.approve')
     ->middleware('auth');
 
-// Reservations route
-Route::get('clients/{client}/reservations', [ClientController::class, 'reservations'])
-    ->name('clients.reservations')
-    ->middleware('auth');
+// Reservation routes
+Route::prefix('reservations')->name('reservations.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\ReservationController::class, 'index'])->name('index');
+    Route::post('/', [App\Http\Controllers\Api\ReservationController::class, 'store'])->name('store');
+    Route::get('/{id}', [App\Http\Controllers\Api\ReservationController::class, 'show'])->name('show');
+    Route::put('/{id}', [App\Http\Controllers\Api\ReservationController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\Api\ReservationController::class, 'cancel'])->name('cancel');
+    Route::post('/check-availability', [App\Http\Controllers\Api\ReservationController::class, 'checkAvailability'])->name('check-availability');
+});
 
 
 
