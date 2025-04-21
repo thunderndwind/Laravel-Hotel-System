@@ -23,6 +23,9 @@ class FloorController extends Controller
         $this->authorize('viewAny', Floor::class);
         $user = Auth::user();
 
+        $perPage = request()->input('per_page', 10);
+        $search = request()->input('search');
+
         $floors = QueryBuilder::for(Floor::class)
             ->allowedFilters([
                 AllowedFilter::exact('number'),
@@ -30,11 +33,17 @@ class FloorController extends Controller
                 AllowedFilter::exact('manager_id'),
             ])
             ->allowedSorts(['name', 'number', 'created_at'])
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('number', 'like', "%{$search}%");
+                });
+            })
             ->when($user->hasRole('Manager'), function ($query) use ($user) {
                 $query->where('manager_id', $user->id);
             })
             ->with('manager')
-            ->paginate(10)
+            ->paginate($perPage)
             ->through(function ($floor) use ($user) {
                 return [
                     'id' => $floor->id,
@@ -52,7 +61,10 @@ class FloorController extends Controller
         return Inertia::render('Floors/Index', [
             'floors' => $floors,
             'isAdmin' => $user->hasRole('Admin'),
-            'filters' => request()->only(['filter', 'sort']),
+            'filters' => array_merge(
+                request()->only(['filter', 'sort']),
+                ['search' => $search]
+            ),
         ]);
     }
 

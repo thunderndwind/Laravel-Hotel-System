@@ -1,8 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, h, watch } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
-import debounce from 'lodash/debounce'
-// import Pagination from '@/Components/Pagination.vue'
+import DataTable from '@/Components/ui/data-table/DataTable.vue'
 
 const props = defineProps({
     floors: Object,
@@ -10,31 +9,103 @@ const props = defineProps({
     filters: Object,
 })
 
-const search = ref(props.filters.filter?.name || '')
+const search = ref(props.filters?.search || '')
+const isLoading = ref(false)
+const previousSearch = ref(props.filters?.search || '')
 
-const sort = ref(props.filters.sort || 'name')
-
-watch(search, debounce((value) => {
+// Enhanced search handler
+const handleSearch = (value) => {
+    isLoading.value = true
     router.get(route('floors.index'), {
-        filter: { name: value },
-        sort: sort.value,
+        ...(value ? { search: value } : {}),
+        page: 1,
+        per_page: pagination.value.per_page,
     }, {
         preserveState: true,
         preserveScroll: true,
+        onFinish: () => {
+            isLoading.value = false
+        }
     })
-}, 300))
+}
 
-const handleSort = (column) => {
-    const currentSort = sort.value
-    const newSort = currentSort === column ? `-${column}` : column
-    sort.value = newSort
+// Watch search with validation
+watch(search, (newValue) => {
+    // Trim the search value
+    const trimmedValue = newValue?.trim() || ''
 
+    // Only trigger search if minimum length or empty
+    if (trimmedValue === '' || trimmedValue.length >= 2) {
+        handleSearch(trimmedValue)
+    }
+})
+
+const columns = computed(() => [
+    {
+        id: 'name',
+        header: 'Name',
+        accessorKey: 'name',
+        cell: ({ row }) => h('span', {}, row.original.name),
+    },
+    {
+        id: 'number',
+        header: 'Number',
+        accessorKey: 'number',
+        cell: ({ row }) => h('span', {}, row.original.number),
+    },
+    ...(props.isAdmin ? [{
+        id: 'manager',
+        header: 'Manager',
+        accessorKey: 'manager',
+        cell: ({ row }) => h('span', {}, row.original.manager),
+    }] : []),
+    {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+            if (!row.original.show_actions) return null
+
+            return h('div', { class: 'flex space-x-2' }, [
+                row.original.can_edit && h(Link, {
+                    href: route('floors.edit', row.original.id),
+                    class: 'text-indigo-600 hover:text-indigo-900'
+                }, { default: () => 'Edit' }),
+
+                row.original.can_delete && h('button', {
+                    onClick: () => destroy(row.original),
+                    class: 'text-red-600 hover:text-red-900'
+                }, 'Delete'),
+
+                row.original.deleted_at && row.original.can_restore && h('button', {
+                    onClick: () => restore(row.original),
+                    class: 'text-green-600 hover:text-green-900'
+                }, 'Restore')
+            ].filter(Boolean))
+        }
+    }
+])
+
+const pagination = ref({
+    current_page: props.floors.current_page,
+    per_page: props.floors.per_page,
+    total: props.floors.total,
+    from: props.floors.from,
+    to: props.floors.to,
+})
+
+const handlePaginationChange = (newPagination) => {
+    isLoading.value = true
     router.get(route('floors.index'), {
-        filter: { name: search.value },
-        sort: newSort,
+        page: newPagination.current_page,
+        per_page: newPagination.per_page,
+        search: search.value,
+        ...props.filters,
     }, {
         preserveState: true,
         preserveScroll: true,
+        onFinish: () => {
+            isLoading.value = false
+        }
     })
 }
 
@@ -50,62 +121,8 @@ const restore = (floor) => {
 </script>
 
 <template>
-    <div>
-        <div class="mb-4">
-            <input v-model="search" type="text" placeholder="Search floors..." class="form-input" />
-        </div>
-
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead>
-                <tr>
-                    <th @click="handleSort('name')" class="cursor-pointer">
-                        Name
-                        <span v-if="sort === 'name'">↑</span>
-                        <span v-if="sort === '-name'">↓</span>
-                    </th>
-                    <th @click="handleSort('number')" class="cursor-pointer">
-                        Number
-                        <span v-if="sort === 'number'">↑</span>
-                        <span v-if="sort === '-number'">↓</span>
-                    </th>
-                    <th v-if="isAdmin">Manager</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="floor in floors.data" :key="floor.id">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        {{ floor.name }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        {{ floor.number }}
-                    </td>
-                    <td v-if="isAdmin" class="px-6 py-4 whitespace-nowrap">
-                        {{ floor.manager }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap" v-if="floor.show_actions">
-                        <div class="flex space-x-2">
-                            <Link v-if="floor.can_edit" :href="route('floors.edit', floor.id)"
-                                class="text-indigo-600 hover:text-indigo-900">
-                            Edit
-                            </Link>
-
-                            <button v-if="floor.can_delete" @click="destroy(floor)"
-                                class="text-red-600 hover:text-red-900">
-                                Delete
-                            </button>
-
-                            <button v-if="floor.deleted_at && floor.can_restore" @click="restore(floor)"
-                                class="text-green-600 hover:text-green-900">
-                                Restore
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- <Pagination :links="floors.links" class="mt-6" /> -->
+    <div class="p-4">
+        <DataTable :data="floors.data" :columns="columns" :pagination="pagination" :is-loading="isLoading"
+            :search="search" @update:pagination="handlePaginationChange" @update:search="handleSearch" />
     </div>
 </template>
