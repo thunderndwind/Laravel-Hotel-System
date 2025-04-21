@@ -80,19 +80,17 @@ class ClientController extends Controller
             'avatar_image' => $avatarPath,
         ]);
 
-
-        // Create user
-        // $user = User::create([
-        //     'name' => $validated['name'],
-        //     'email' => $validated['email'],
-        //     'password' => bcrypt($validated['password']),
-        // ]);
+        // Save the client profile to the database
+        $client->save();
 
         $user = new User([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
+            'profile_type' => Client::class,
+            'profile_id' => $client->id,
         ]);
+        
 
 
 

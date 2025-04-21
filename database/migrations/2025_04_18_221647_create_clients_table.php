@@ -12,7 +12,6 @@ return new class extends Migration {
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->string('avatar_image');
             $table->string('phone_number', 20);
             $table->enum('gender', ['male', 'female']);
@@ -21,6 +20,8 @@ return new class extends Migration {
             $table->timestamp('email_verified_at')->nullable();
             $table->string('country', 30);
         });
+        
+
     }
 
     /**

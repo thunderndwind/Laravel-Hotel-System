@@ -45,14 +45,12 @@ class RegisteredUserController extends Controller
     $avatarImagePath = $request->file('avatar_image')->store('avatars', 'public');
 
     $client = new Client([
-        'name' => $request->name,
         'avatar_image' => $avatarImagePath,
         'phone_number' => $request->phone_number,
         'gender' => $request->gender,
         'country' => $request->country,
     ]);
     $client->save();
-
     $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
@@ -60,6 +58,14 @@ class RegisteredUserController extends Controller
         'profile_type' => Client::class,
         'profile_id' => $client->id,
     ]);
+    $user->save();
+
+    $user->assignRole('client'); // Assign the 'client' role to the user
+   
+
+    $user->profile()->associate($client)->save();
+
+
 
     event(new Registered($user));
     Auth::login($user);
