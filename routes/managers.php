@@ -17,5 +17,3 @@ Route::patch('/managers/{manager}', [ManagerController::class, 'update'])->name(
 
 Route::delete('/managers/{manager}', [ManagerController::class, 'destroy'])->name('managers.destroy');
 
-//will put this in web.php
-//require __DIR__.'/managers.php';

@@ -90,3 +90,4 @@ Route::resource('floors', FloorController::class)
 
 
 require __DIR__ . '/auth.php';
+require __DIR__.'/managers.php';
