@@ -11,7 +11,6 @@ class Client extends Model
     use HasFactory;
     public $timestamps = false;
 
-    public $timestamps = false;
     //=========== mass assignable ===========
     protected $fillable = [
         'avatar_image',

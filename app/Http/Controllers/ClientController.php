@@ -10,10 +10,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Inertia\Inertia;
+
 
 
 class ClientController extends Controller
 {
+    use AuthorizesRequests;
+
 
     //============== Display a listing of clients based on user role ==============
     public function index(Request $request)
@@ -37,6 +43,7 @@ class ClientController extends Controller
 
         return view('clients.index', compact('clients'));
     }
+
 
     // ============== Show the form for creating a new client (registration form) ==============
     public function create()
@@ -64,12 +71,6 @@ class ClientController extends Controller
             $avatarPath = $request->file('avatar_image')->store('avatars', 'public');
         }
 
-        // Create user
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-        ]);
 
         // Create client profile
         $client = Client::create([
@@ -78,6 +79,22 @@ class ClientController extends Controller
             'country' => $validated['country'],
             'avatar_image' => $avatarPath,
         ]);
+
+
+        // Create user
+        // $user = User::create([
+        //     'name' => $validated['name'],
+        //     'email' => $validated['email'],
+        //     'password' => bcrypt($validated['password']),
+        // ]);
+
+        $user = new User([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+        ]);
+
+
 
         // Attach client profile to user
         $user->profile()->associate($client)->save();

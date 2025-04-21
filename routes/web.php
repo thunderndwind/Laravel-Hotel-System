@@ -10,6 +10,14 @@ use App\Http\Controllers\StripeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+//-------------------------------------------------
+use Lwwcas\LaravelCountries\LaravelCountries; // Add this at the top
+
+
+// routes/web.php
+
+
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -37,7 +45,7 @@ Route::middleware(['role:manager'])->group(function () {
 
     Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
 });
-   
+
 
 ///===================================================== Client Routes =========================================================
 
@@ -50,7 +58,7 @@ Route::resource('clients', ClientController::class)
 Route::get('register', [ClientController::class, 'create'])
     ->name('clients.create')
     ->middleware('guest');
-    
+
 Route::post('register', [ClientController::class, 'store'])
     ->name('clients.store')
     ->middleware('guest');
@@ -64,7 +72,14 @@ Route::post('clients/{client}/approve', [ClientController::class, 'approve'])
 Route::get('clients/{client}/reservations', [ClientController::class, 'reservations'])
     ->name('clients.reservations')
     ->middleware('auth');
-    
+
+
+
+// Route::get('/test-countries', function() {
+//     return \Lwwcas\LaravelCountries\Facades\LaravelCountries::all()->pluck('name', 'iso_3166_2');
+// });
+
+
 //=============================================================================
 
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
@@ -72,6 +87,6 @@ Route::resource('floors', FloorController::class)
     ->middleware(['auth', 'verified']);
 
 
-    
+
 
 require __DIR__ . '/auth.php';
