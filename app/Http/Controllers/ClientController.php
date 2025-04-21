@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 //------------------------
 use App\Models\User;
+use App\Notifications\ClientApprovedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -60,7 +61,7 @@ class ClientController extends Controller
         $this->authorize('create', Client::class);
 
         return Inertia::render('Clients/Create', [
-            'countries' => \Countries::all()->pluck('name', 'iso_3166_2'),
+            // 'countries' => \Countries::all()->pluck('name', 'iso_3166_2'),
             'genders' => ['male', 'female']
         ]);
     }
@@ -103,7 +104,7 @@ class ClientController extends Controller
             'profile_type' => Client::class,
             'profile_id' => $client->id,
         ]);
-        
+
 
 
 
@@ -142,7 +143,7 @@ class ClientController extends Controller
         // return view('clients.edit', compact('client', 'countries'));
         return Inertia::render('Clients/Edit', [
             'client' => $client->load('user'),
-            'countries' => \Countries::all()->pluck('name', 'iso_3166_2'),
+            // 'countries' => \Countries::all()->pluck('name', 'iso_3166_2'),
             'genders' => ['male', 'female']
         ]);
     }
@@ -171,6 +172,9 @@ class ClientController extends Controller
 
         if (!$client->approved_at) {
             $client->approve($approver);
+            // Now notify the client
+            $client->notify(new ClientApprovedNotification());
+
             return back()->with('success', 'Client approved successfully.');
         }
 

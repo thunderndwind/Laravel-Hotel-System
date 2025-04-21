@@ -75,11 +75,10 @@ Route::get('clients/{client}/reservations', [ClientController::class, 'reservati
     ->name('clients.reservations')
     ->middleware('auth');
 
-
-
-// Route::get('/test-countries', function() {
-//     return \Lwwcas\LaravelCountries\Facades\LaravelCountries::all()->pluck('name', 'iso_3166_2');
-// });
+ // test
+Route::get('clients/home', [ClientController::class, 'index'])
+    ->name('clients.index')
+    ->middleware('guest');
 
 
 //=============================================================================
