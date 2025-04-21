@@ -5,6 +5,7 @@ use App\Http\Controllers\FloorController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\ReceptionistController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,5 +37,7 @@ Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
 Route::resource('floors', FloorController::class)
     ->middleware(['auth', 'verified']);
+Route::get('/test-approved-clients', [ReceptionistController::class, 'testApprovedClients']);
+
 
 require __DIR__ . '/auth.php';

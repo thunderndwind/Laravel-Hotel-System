@@ -23,16 +23,8 @@ return new class extends Migration {
             $table->rememberToken();
           
         });
-        schema::create ('receptionist_client',function(Blueprint $table){
-            $table->foreignId('receptionist_id')->constrained()->onDelete('cascade');
-            $table->foreignId('client_id')->constrained()->onDelete('cascade');
-            $table->primary(['receptionist_id', 'client_id']);
-        });
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
+     
+      
     }
 
     /**
