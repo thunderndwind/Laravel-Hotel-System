@@ -103,7 +103,7 @@ class ClientController extends Controller
             'profile_type' => Client::class,
             'profile_id' => $client->id,
         ]);
-        
+
 
 
 

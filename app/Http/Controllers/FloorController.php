@@ -9,6 +9,8 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
 
 class FloorController extends Controller
 {
@@ -18,18 +20,39 @@ class FloorController extends Controller
      */
     public function index()
     {
-        $this->authorize('viewAny', arguments: Floor::class);
+        $this->authorize('viewAny', Floor::class);
+        $user = Auth::user();
 
-        return Inertia::render('Floors/Index', [
-            'floors' => Floor::with('manager')
-                ->paginate(10)
-                ->through(fn($floor) => [
+        $floors = QueryBuilder::for(Floor::class)
+            ->allowedFilters([
+                AllowedFilter::exact('number'),
+                'name',
+                AllowedFilter::exact('manager_id'),
+            ])
+            ->allowedSorts(['name', 'number', 'created_at'])
+            ->when($user->hasRole('Manager'), function ($query) use ($user) {
+                $query->where('manager_id', $user->id);
+            })
+            ->with('manager')
+            ->paginate(10)
+            ->through(function ($floor) use ($user) {
+                return [
                     'id' => $floor->id,
                     'name' => $floor->name,
                     'number' => $floor->number,
-                    'manager' => $floor->manager->name,
-                    'can_edit' => Auth::user()->can('update', $floor)
-                ])
+                    'manager' => $user->hasRole('Admin') ? $floor->manager->name : null,
+                    'created_at' => $floor->created_at->format('Y-m-d H:i'),
+                    'can_edit' => $user->can('update', $floor),
+                    'can_delete' => $user->can('delete', $floor),
+                    'show_actions' => $user->hasRole('Admin') ||
+                        ($user->hasRole('Manager') && $floor->manager_id === $user->id)
+                ];
+            });
+
+        return Inertia::render('Floors/Index', [
+            'floors' => $floors,
+            'isAdmin' => $user->hasRole('Admin'),
+            'filters' => request()->only(['filter', 'sort']),
         ]);
     }
 
@@ -125,6 +148,29 @@ class FloorController extends Controller
                 ->route('floors.index')
                 ->with('success', 'Floor deleted successfully.');
 
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Restore the specified soft-deleted floor.
+     */
+    public function restore($id)
+    {
+        try {
+            $floor = Floor::withTrashed()->findOrFail($id);
+
+            $this->authorize('restore', $floor);
+
+            $floor->restore();
+
+            return redirect()
+                ->route('floors.index')
+                ->with('success', 'Floor restored successfully.');
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('error', 'Floor not found.');
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

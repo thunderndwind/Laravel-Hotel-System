@@ -92,7 +92,7 @@ Route::get('/test-client-reservations', [ReceptionistController::class, 'testCli
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::resource('floors', FloorController::class);
+    Route::resource('floors', FloorController::class)->except(['show']);
     Route::resource('rooms', RoomController::class);
 });
 
