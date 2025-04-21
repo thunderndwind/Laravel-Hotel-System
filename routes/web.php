@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\FloorController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoomController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\StripeController;
 
@@ -36,10 +37,13 @@ Route::middleware(['role:manager'])->group(function () {
 
     Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
 });
-   
-
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
-Route::resource('floors', FloorController::class)
-    ->middleware(['auth', 'verified']);
+
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::resource('floors', FloorController::class);
+    Route::resource('rooms', RoomController::class);
+});
 
 require __DIR__ . '/auth.php';

@@ -7,7 +7,6 @@ use App\Http\Requests\Floor\UpdateFloorRequest;
 use App\Models\Floor;
 use App\Models\User;
 use Inertia\Inertia;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
