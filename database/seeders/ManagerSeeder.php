@@ -25,7 +25,7 @@ class ManagerSeeder extends Seeder
 
         $managerUser = new User([
             'name' => 'nouran',
-            'email' => 'nouran@gmail.com',
+            'email' => 'nourannn@gmail.com',
             'password' => Hash::make('12345678'),
         ]);
 

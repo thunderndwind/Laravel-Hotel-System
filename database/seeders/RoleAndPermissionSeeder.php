@@ -24,39 +24,60 @@ class RoleAndPermissionSeeder extends Seeder
             Role::firstOrCreate(['name' => $roleName]);
         }
 
-         $permissions = [
-            'manage rooms',
-            'view rooms',
-            'approve reservation',
-            'manage floors',
-            'manage receptionists',
-            'manage clients',
-            'view reservations'
-         ];
- 
-         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
-         }
- 
-         Role::findByName('Manager')->givePermissionTo([
-            'view rooms',
-            'manage rooms',
-            'approve reservation',
-            'manage floors',
-         ]);
 
-
-         Role::findByName('Receptionist')->givePermissionTo([
-            'approve reservation',
+         
+        $clientPermissions = [
+            'view rooms',
+            'make reservation',
             'view reservations',
-            'view rooms'
-        ]);
+        ];
+        
+        $receptionistPermissions = [
+            'approve reservation',
+            'view clients',
+            'create clients',
+            'edit clients',
+            'delete clients',
+            'view rooms',
+            'view reservations',
+        ];
 
-        Role::findByName('Client')->givePermissionTo([
-            'view rooms'
-        ]);
 
-        Role::findByName('Admin')->givePermissionTo(Permission::all());
+        $managerPermissions = [
+            'create rooms',
+            'edit rooms',
+            'delete rooms',
+            'view floors',
+            'create floors',
+            'edit floors',
+            'delete floors',
+            'view managers',
+            'create managers',
+            'edit managers',
+            'delete managers',
+            ...$receptionistPermissions
+        ];
+
+
+        $allPermissions = array_unique([
+            ...$managerPermissions,
+            ...$receptionistPermissions,
+            ...$clientPermissions,
+            'restore managers',
+        ]);
+    
+        foreach ($allPermissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+
+    
+        Role::findByName('Manager')->givePermissionTo(...$managerPermissions);
+        Role::findByName('Receptionist')->givePermissionTo(...$receptionistPermissions);
+        Role::findByName('Client')->givePermissionTo(...$clientPermissions);
+
+
+        $adminPermissions = Permission::where('name', '!=', 'make reservation')->get();
+        Role::findByName('Admin')->syncPermissions($adminPermissions);
 
     }
 }
