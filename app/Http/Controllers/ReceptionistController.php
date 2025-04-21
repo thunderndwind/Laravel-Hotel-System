@@ -8,70 +8,77 @@ use App\Models\User;
 
 class ReceptionistController extends Controller
 {
+    public function index()
+    {
+        $receptionists = Receptionist::all();
+        return inertia('Receptionists/Index', [
+            'receptionists' => $receptionists
+        ]);
+    }
+
+    public function create()
+    {
+        return inertia('Receptionists/Create');
+    }
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:receptionists,email',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'national_id' => 'required|string|max:20',
-            'avatar_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'national_id' => 'required|string|max:50',
+            'avatar_image' => 'nullable|image|max:2048',
             'phone_number' => 'required|string|max:20',
         ]);
-        $receptionist = new Receptionist([
-            'avatar_image' => $request->file('avatar_image')->store('avatars', 'public'),
-            'phone_number' => $request->phone_number,
-            'national_id' => $request->national_id,
-        ]);
-        $receptionist->save();
-        $user = new User([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-            'profile_type' => Receptionist::class,
-            'profile_id' => $receptionist->id,
-        ]);
-        $user->profile()->associate($receptionist)->save();
-       
-        // Save the user to the database
-        $user->save();
-        // Handle avatar upload
-    
-        $receptionist = Receptionist::create($validated);
-    
-        
 
+        $receptionist = Receptionist::create($request->all());
+        $receptionist->assignRole('Receptionist');
+
+        return redirect()->route('receptionists.index');
     }
-    //
-    public function testApprovedClients()
+
+    public function show(Receptionist $receptionist)
     {
-        $receptionist = Receptionist::find(1);
-    
-        if (!$receptionist) {
-            return response()->json(['error' => 'Receptionist not found'], 404);
-        }
-    
-        dd($receptionist->approvedClients()->get());
+        return inertia('Receptionists/Show', [
+            'receptionist' => $receptionist
+        ]);
     }
-    public function testPendingClients()
+
+    public function edit(Receptionist $receptionist)
     {
-        $receptionist = Receptionist::find(1);
-    
-        if (!$receptionist) {
-            return response()->json(['error' => 'Receptionist not found'], 404);
-        }
-    
-        dd($receptionist->pendingClients()->get());
+        return inertia('Receptionists/Edit', [
+            'receptionist' => $receptionist
+        ]);
     }
-    public function testClientReservations()
+
+    public function update(Request $request, Receptionist $receptionist)
     {
-        $receptionist = Receptionist::find(1);
-    
-        if (!$receptionist) {
-            return response()->json(['error' => 'Receptionist not found'], 404);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $receptionist->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'national_id' => 'required|string|max:50',
+            'avatar_image' => 'nullable|image|max:2048',
+            'phone_number' => 'required|string|max:20',
+        ]);
+
+        if ($request->has('password')) {
+            $request['password'] = bcrypt($request['password']);
+        } else {
+            unset($request['password']);
         }
-    
-        dd($receptionist->clientReservations()->get());
+
+        $receptionist->update($request->all());
+
+        return redirect()->route('receptionists.index');
     }
-    
+
+    public function destroy(Receptionist $receptionist)
+    {
+        $receptionist->delete();
+        return redirect()->route('receptionists.index');
+    }
+
+   
 }

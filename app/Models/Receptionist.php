@@ -13,55 +13,57 @@ class Receptionist extends Authenticatable
 
 
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+      
         'national_id',
         'avatar_image',
         'phone_number',
-       
-    ];
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'banned_at' => 'datetime',
-        'password' => 'hashed',
-        'last_login_at' => 'datetime',
-    ];
 
+    ];
     protected $hidden = [
         'password',
     ];
-    // Get Clients
-            public function clients()
-        {
-            return $this->hasMany(Client::class);
-        }
-    // Get All pending clients
-    public function pendingClients()
-{
-    return $this->hasMany(Client::class)->where('status', 'pending');
-}
-
-    // Get All approved clients
-    public function approvedClients()
-{
-    return $this->hasMany(Client::class)->where('status', 'approved');
-}
-    //Get All revervations for approved clients
-    // public function clientReservations()
-    // {
-    //     return $this->hasManyThrough(Reservation::class, Client::class);
-    // }
-
-    // Check if receptionist has approved a specific client
-    public function hasApprovedClient(Client $client): bool
+    //=========== Receptionist profile belongs to one user account ===========
+    public function user()
     {
-        return $this->approvedClients()
-            ->where('id', $client->id)  // Check the 'id' of the client, not 'client_id'
-            ->exists();
+        return $this->morphOne(User::class, 'profile');
     }
- 
-  
-   
+    //=========== Receptionist profile belongs to one manager account ===========
+    public function manager()
+    {
+        return $this->belongsTo(Manager::class, 'manager_id');
+    }
+    //=========== Receptionist profile has many reservations ===========
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'receptionist_id');
+    }
+    //=========== Receptionist profile has many clients ===========
+    public function clients()
+    {
+        return $this->hasMany(Client::class, 'receptionist_id');
 
+    }
+    //================ Receptionist Approved clients ================
+    public function approvedClients()
+    {
+        return $this->hasMany(Client::class, 'receptionist_id')->wherenotNull('approved_at');
+    }
+    //================ Receptionist Pending clients ================
+    public function pendingClients()
+    {
+        return $this->hasMany(Client::class, 'receptionist_id')->whereNull('approved_at');
+    }
+    //================ Receptionist Approved reservations ================
+    public function approvedReservations()
+    {
+        return $this->hasMany(Reservation::class, 'receptionist_id')->wherenotNull('approved_at');
+    }
+    //================ Receptionist Pending reservations ================
+    public function pendingReservations()
+    {
+        return $this->hasMany(Reservation::class, 'receptionist_id')->whereNull('approved_at');
+    }
+   
+   
+   
 }
