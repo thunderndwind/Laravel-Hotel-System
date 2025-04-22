@@ -1,5 +1,6 @@
 <template>
-    <div class="relative w-full h-screen overflow-hidden">
+    <div class="'relative">
+      <div class="relative w-full h-screen overflow-hidden">
       <!-- Transparent Navbar -->
       <nav ref="navbar" class="fixed top-0 left-0 right-0 z-50 py-8 px-6 flex  justify-between items-center transition-all duration-300">
  
@@ -39,7 +40,7 @@
         Dashboard
       </router-link>
 
-      <template v-else>
+      <div v-else>
         <router-link
           v-if="canLogin"
           :to="route('login')"
@@ -55,17 +56,10 @@
         >
           Register
         </router-link>
-      </template>
-    </div>
-
+      </div>
+        </div>
       </nav>
     <hr class="border-t-5 border-[#cb8670]  mx-auto mb-4 w-1/4 mt-50">
-
-
-
-
-      
-  
       <!-- Background Images (Fixed) -->
       <div class="fixed inset-0 w-full h-full slide-animation">
         <transition-group name="fade" tag="div" class="w-full h-full slide-animation">
@@ -140,7 +134,71 @@
           ></button>
         </div>
       </div>
+  
+
     </div>
+    <section class="py-20 bg-white relative z-20">
+  <div class="container mx-auto px-6 md:px-12 lg:px-20 flex flex-col md:flex-row items-center gap-12">
+    
+    <!-- Left Content -->
+    <div class="md:w-1/2">
+      <div class="mb-4 w-20 h-0.5 " style="background-color: #cb8670;"></div>
+      <h2 class="text-4xl font-semibold text-gray-800 mb-6">A place to remember</h2>
+      <p class="text-gray-600 mb-6 leading-relaxed">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec malesuada lorem maximus mauris scelerisque, at rutrum nulla dictum. Ut ac ligula sapien. Suspendisse cursus faucibus finibus.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec malesuada lorem maximus mauris scelerisque, at rutrum nulla dictum.
+      </p>
+
+      <!-- List Items -->
+      <ul class="space-y-4 mb-8">
+        <li class="flex items-center">
+          <span class="w-6 h-6 flex items-center justify-center rounded-full  text-white mr-3" style="background-color: #cb8670;">
+            ✓
+          </span>
+          <span class="text-gray-800">Donec malesuada lorem maximus mauris sceleri</span>
+        </li>
+        <li class="flex items-center">
+          <span class="w-6 h-6 flex items-center justify-center rounded-full  text-white mr-3"  style="background-color: #cb8670;">
+            ✓
+          </span>
+          <span class="text-gray-800">Malesuada lorem maximus mauris sceleri</span>
+        </li>
+      </ul>
+
+      <!-- Read More Button -->
+      <a href="#" class="inline-block  text-white px-6 py-3 rounded-md  transition" style="background-color: #cb8670;">
+        Read More
+      </a>
+    </div>
+
+    <!-- Right Images -->
+    <div class="md:w-1/2 relative flex justify-center h-96">
+  <!-- Images with consistent height and layered animation -->
+  <img 
+    src="/statics/img1.jpg" 
+    alt="Image 1" 
+    class="rounded-lg shadow-lg w-64 h-64 object-cover md:w-72 lg:w-80 absolute transition-all duration-500 hover:scale-105 hover:z-40" 
+    style="top: 0rem; left: 15.5rem; z-index: 10;"
+  />
+  
+  <img 
+    src="/statics/img3.jpg" 
+    alt="Image 2" 
+    class="rounded-lg shadow-lg w-64 h-64 object-cover md:w-64 lg:w-72 absolute transition-all duration-500 hover:scale-105 hover:z-40" 
+    style="top: 2.5rem; left: 0rem; z-index: 20;"
+  />
+  
+  <img 
+    src="/statics/img4.jpg" 
+    alt="Image 3" 
+    class="rounded-lg shadow-lg w-64 h-64 object-cover md:w-72 lg:w-80 absolute transition-all duration-500 hover:scale-105 hover:z-40" 
+    style="top: 9rem; left: 7rem; z-index: 30;"
+  />
+</div>
+  </div>
+</section>
+    </div>
+    
   </template>
   
   <script>
@@ -366,6 +424,15 @@
   100% {
     transform: scale(0.8);
   }
+  
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.hover\:animate-float:hover {
+  animation: float 3s ease-in-out infinite;
 }
 
   }

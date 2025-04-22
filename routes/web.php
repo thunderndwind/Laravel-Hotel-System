@@ -9,6 +9,7 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\ReceptionistController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 
@@ -74,7 +75,63 @@ Route::get('clients/{client}/reservations', [ClientController::class, 'reservati
 
 
 //=============================================================================
+//======================== Receptionist Routes ==========================
+Route::middleware(['role:receptionist'])->group(function () {
+    Route::get('/receptionist', [ReceptionistController::class, 'index'])->name('receptionist.index');
+    Route::get('/receptionist/clients', [ReceptionistController::class, 'clients'])->name('receptionist.clients');
+    Route::get('/receptionist/reservations', [ReceptionistController::class, 'reservations'])->name('receptionist.reservations');
+    Route::get('/receptionist/approved-clients', [ReceptionistController::class, 'approvedClients'])->name('receptionist.approvedClients');
+    Route::get('/receptionist/pending-clients', [ReceptionistController::class, 'pendingClients'])->name('receptionist.pendingClients');
+});
+//======================================CRUD RECEPTIONIST=========================================
+Route::resource('receptionists', ReceptionistController::class)
+    ->middleware('auth')
+    ->except(['create', 'store']);
+// Receptionist Registration routes (no auth)
+Route::get('receptionists/create', [ReceptionistController::class, 'create'])
+    ->name('receptionists.create')
+    ->middleware('auth');
+Route::post('receptionists', [ReceptionistController::class, 'store'])
+    ->name('receptionists.store')
+    ->middleware('auth');
+// Receptionist Approval route
+Route::post('receptionists/{receptionist}/approve', [ReceptionistController::class, 'approve'])
+    ->name('receptionists.approve')
+    ->middleware('auth');
+// Receptionist Reservations route
+Route::get('receptionists/{receptionist}/reservations', [ReceptionistController::class, 'reservations'])
+    ->name('receptionists.reservations')
+    ->middleware('auth');
+// Receptionist Clients route
+Route::get('receptionists/{receptionist}/clients', [ReceptionistController::class, 'clients'])
+    ->name('receptionists.clients')
+    ->middleware('auth');
+// Receptionist Approved Clients route
+Route::get('receptionists/{receptionist}/approved-clients', [ReceptionistController::class, 'approvedClients'])
+    ->name('receptionists.approvedClients')
+    ->middleware('auth');
+// Receptionist Pending Clients route
+Route::get('receptionists/{receptionist}/pending-clients', [ReceptionistController::class, 'pendingClients'])
+    ->name('receptionists.pendingClients')
+    ->middleware('auth');
+// Receptionist Approved Reservations route
+Route::get('receptionists/{receptionist}/approved-reservations', [ReceptionistController::class, 'approvedReservations'])
+    ->name('receptionists.approvedReservations')
+    ->middleware('auth');
+//===========================================================================================================
+Route::get('/dashboard', function () {
+    $user = Auth::user();
 
+    if ($user->hasRole('admin')) {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->hasRole('client')) {
+        return redirect()->route('client.dashboard');
+    } elseif ($user->hasRole('manager') || $user->hasRole('receptionist')) {
+        return redirect()->route('staff.dashboard');
+    }
+
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
 
 Route::get('/test-approved-clients', [ReceptionistController::class, 'testApprovedClients']);
