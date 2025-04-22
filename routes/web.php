@@ -8,15 +8,8 @@ use App\Http\Controllers\RoomController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\ReceptionistController;
-
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-//-------------------------------------------------
-use Lwwcas\LaravelCountries\LaravelCountries; // Add this at the top
-
-
-// routes/web.php
 
 
 
@@ -51,6 +44,9 @@ Route::middleware(['role:manager'])->group(function () {
 
 ///===================================================== Client Routes =========================================================
 
+Route::get('/client-dashboard', [ClientController::class, 'dashboard'])
+    ->middleware(['auth', 'role:client'])
+    ->name('client.dashboard');
 
 Route::resource('clients', ClientController::class)
     ->middleware('auth')
@@ -77,11 +73,6 @@ Route::get('clients/{client}/reservations', [ClientController::class, 'reservati
 
 
 
-// Route::get('/test-countries', function() {
-//     return \Lwwcas\LaravelCountries\Facades\LaravelCountries::all()->pluck('name', 'iso_3166_2');
-// });
-
-
 //=============================================================================
 
 Route::post('/stripe', [StripeController::class, 'handle'])->name('stripe.handle');
@@ -92,7 +83,7 @@ Route::get('/test-client-reservations', [ReceptionistController::class, 'testCli
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::resource('floors', FloorController::class);
+    Route::resource('floors', FloorController::class)->except(['show']);
     Route::resource('rooms', RoomController::class);
 });
 

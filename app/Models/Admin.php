@@ -62,4 +62,7 @@ class Admin extends Authenticatable
     {
         return $this->status === true;
     }
+
+    public $timestamps = false;
+
 }

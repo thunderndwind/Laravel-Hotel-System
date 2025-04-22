@@ -8,57 +8,40 @@ use Illuminate\Auth\Access\Response;
 
 class ManagerPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasRole('Admin') || $user->hasRole('Manager') ; // i added the manager role just for testing
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Manager $manager): bool
     {
-        return false;
+        return $user->hasRole('Admin') ||
+            ($user->hasRole('Manager') && $user->profile_type === Manager::class && $user->profile_id === $manager->id);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole('Admin') || $user->hasRole('Manager');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Manager $manager): bool
     {
-        return false;
+        return $user->hasRole('Admin') ||
+            ($user->hasRole('Manager') && $user->profile_id === $manager->id);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Manager $manager): bool
+    public function delete(User $user, Manager $manager): Response
     {
-        return false;
+        return ( $user->hasRole('Admin') || ($user->hasRole('Manager') && $user->profile_type === Manager::class && $user->profile_id === $manager->id ) )
+            ? Response::allow()
+            : Response::deny('You are not allowed to delete this manager.');
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Manager $manager): bool
     {
-        return false;
+        return $user->hasRole('Admin');
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Manager $manager): bool
     {
         return false;
