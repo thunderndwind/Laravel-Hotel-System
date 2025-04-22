@@ -104,6 +104,12 @@ class ClientPolicy
             $user->profile_id === $client->id;
     }
 
+    public function makeReservation(User $user)
+    {
+        return $user->hasRole('client') && 
+            $user->profile->approved_at &&
+            $user->hasVerifiedEmail();
+    }
 
 
 
