@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
+
 class RoleAndPermissionSeeder extends Seeder
 {
     /**
@@ -15,7 +16,6 @@ class RoleAndPermissionSeeder extends Seeder
      */
     public function run(): void
     {
-<<<<<<< HEAD
          app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
 
@@ -78,15 +78,6 @@ class RoleAndPermissionSeeder extends Seeder
 
         $adminPermissions = Permission::where('name', '!=', 'make reservation')->get();
         Role::findByName('Admin')->syncPermissions($adminPermissions);
-=======
-        // Reset cached roles and permissions
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
->>>>>>> 4c8abcc (Add crud for recep)
 
-        // Create roles
-        Role::create(['name' => 'admin']);
-        Role::create(['name' => 'manager']);
-        Role::create(['name' => 'receptionist']);
-        Role::create(['name' => 'client']);
     }
 }

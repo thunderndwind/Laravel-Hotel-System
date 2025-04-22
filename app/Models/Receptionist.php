@@ -63,6 +63,7 @@ class Receptionist extends Authenticatable
     {
         return $this->hasMany(Reservation::class, 'receptionist_id')->whereNull('approved_at');
     }
+    
    
    
    
