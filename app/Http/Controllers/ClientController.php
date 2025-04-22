@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 //------------------------
 use App\Models\User;
+use App\Notifications\ClientApprovedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -60,7 +61,7 @@ class ClientController extends Controller
         $this->authorize('create', Client::class);
 
         return Inertia::render('Clients/Create', [
-            'countries' => \Countries::all()->pluck('name', 'iso_3166_2'),
+            // 'countries' => \Countries::all()->pluck('name', 'iso_3166_2'),
             'genders' => ['male', 'female']
         ]);
     }
@@ -142,22 +143,81 @@ class ClientController extends Controller
         // return view('clients.edit', compact('client', 'countries'));
         return Inertia::render('Clients/Edit', [
             'client' => $client->load('user'),
-            'countries' => \Countries::all()->pluck('name', 'iso_3166_2'),
+            // 'countries' => \Countries::all()->pluck('name', 'iso_3166_2'),
             'genders' => ['male', 'female']
         ]);
     }
 
 
     // ============== Update the specified resource in storage ==============
-    public function update(UpdateClientRequest $request, Client $client)
+    public function update(Request $request, Client $client)
     {
-        //
+        $this->authorize('update', $client);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($client->user->id),
+            ],
+            'phone_number' => 'required|string|max:20',
+            'gender' => 'required|in:male,female',
+            'country' => 'required|string|max:30',
+            'avatar_image' => 'nullable|image|mimes:jpeg,jpg|max:2048',
+        ]);
+
+        // Handle avatar upload
+        if ($request->hasFile('avatar_image')) {
+            // Delete old avatar if exists
+            if ($client->avatar_image) {
+                Storage::disk('public')->delete($client->avatar_image);
+            }
+            $avatarPath = $request->file('avatar_image')->store('avatars', 'public');
+            $client->avatar_image = $avatarPath;
+        }
+
+        // Update user
+        $client->user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+
+        // Update client
+        $client->update([
+            'phone_number' => $validated['phone_number'],
+            'gender' => $validated['gender'],
+            'country' => $validated['country'],
+        ]);
+
+        return redirect()->route('clients.show', $client)
+            ->with('success', 'Client updated successfully.');
     }
 
     // ============== Remove the specified resource from storage ==============
     public function destroy(Client $client)
     {
-        //
+        $this->authorize('delete', $client);
+
+        // Check if client has reservations
+        if ($client->reservations()->exists()) {
+            return back()->with(
+                'error',
+                'Cannot delete client with active reservations. ' .
+                    'Please delete their reservations first.'
+            );
+        }
+
+        // Delete avatar if exists
+        if ($client->avatar_image) {
+            Storage::disk('public')->delete($client->avatar_image);
+        }
+
+        // Delete user (which will cascade to client via morph)
+        $client->user()->delete();
+
+        return redirect()->route('clients.index')
+            ->with('success', 'Client deleted successfully.');
     }
 
     ///===================================================== Approval Methods =====================================================================
@@ -171,6 +231,9 @@ class ClientController extends Controller
 
         if (!$client->approved_at) {
             $client->approve($approver);
+            // Now notify the client
+            $client->notify(new ClientApprovedNotification());
+
             return back()->with('success', 'Client approved successfully.');
         }
 
@@ -196,4 +259,30 @@ class ClientController extends Controller
                 ->paginate(10)
         ]);
     }
+
+        //======== Show client  Dashboard  ==============
+        public function dashboard()
+        {
+            // Get the authenticated user
+            $user = auth()->user();
+            
+            // Check if user has a client profile
+            if (!$user || $user->profile_type !== Client::class) {
+                abort(403, 'Unauthorized access');
+            }
+        
+            // Load the client with relationships
+            $client = Client::with(['user', 'reservations.room.floor'])
+                        ->findOrFail($user->profile_id);
+        
+            return Inertia::render('Clients/Dashboard', [
+                'client' => $client,
+                'pendingReservations' => $client->reservations()->where('status', 'pending')->count(),
+                'upcomingReservations' => $client->reservations()
+                                            ->where('check_in_date', '>=', now())
+                                            ->orderBy('check_in_date')
+                                            ->take(3)
+                                            ->get()
+            ]);
+        }
 }

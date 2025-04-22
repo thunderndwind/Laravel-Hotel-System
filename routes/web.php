@@ -8,15 +8,8 @@ use App\Http\Controllers\RoomController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\ReceptionistController;
-
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-//-------------------------------------------------
-use Lwwcas\LaravelCountries\LaravelCountries; // Add this at the top
-
-
-// routes/web.php
 
 
 
@@ -51,6 +44,9 @@ Route::middleware(['role:manager'])->group(function () {
 
 ///===================================================== Client Routes =========================================================
 
+Route::get('/client-dashboard', [ClientController::class, 'dashboard'])
+    ->middleware(['auth', 'role:client'])
+    ->name('client.dashboard');
 
 Route::resource('clients', ClientController::class)
     ->middleware('auth')
@@ -75,11 +71,6 @@ Route::get('clients/{client}/reservations', [ClientController::class, 'reservati
     ->name('clients.reservations')
     ->middleware('auth');
 
-
-
-// Route::get('/test-countries', function() {
-//     return \Lwwcas\LaravelCountries\Facades\LaravelCountries::all()->pluck('name', 'iso_3166_2');
-// });
 
 
 //=============================================================================

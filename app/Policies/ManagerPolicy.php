@@ -10,7 +10,7 @@ class ManagerPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('Admin');
+        return $user->hasRole('Admin') || $user->hasRole('Manager') ; // i added the manager role just for testing
     }
 
     public function view(User $user, Manager $manager): bool
@@ -32,7 +32,7 @@ class ManagerPolicy
 
     public function delete(User $user, Manager $manager): Response
     {
-        return ( $user->hasRole('Admin') || hasRole('Manager') )
+        return ( $user->hasRole('Admin') || ($user->hasRole('Manager') && $user->profile_type === Manager::class && $user->profile_id === $manager->id ) )
             ? Response::allow()
             : Response::deny('You are not allowed to delete this manager.');
     }
