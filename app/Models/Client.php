@@ -65,17 +65,17 @@ class Client extends Model
 
 
     //=========== Get all reservations for this client===========
-    // public function reservations()
-    // {
-    //     return $this->hasManyThrough(
-    //         Reservation::class,
-    //         User::class,
-    //         'profile_id', // Foreign key on users table
-    //         'user_id',    // Foreign key on reservations table
-    //         'id',         // Local key on clients table
-    //         'id'          // Local key on users table
-    //     );
-    // }
+    public function reservations()
+    {
+        return $this->hasManyThrough(
+            Reservation::class,
+            User::class,
+            'profile_id', // Foreign key on users table
+            'user_id',    // Foreign key on reservations table
+            'id',         // Local key on clients table
+            'id'          // Local key on users table
+        );
+    }
 
     //===========Check if client can make reservations===========
     public function canMakeReservations()
@@ -94,11 +94,10 @@ class Client extends Model
 
     //     $this->user->notify(new ClientApprovedNotification);
     // }
+
+
     public function receptionist()
     {
         return $this->belongsTo(Receptionist::class);
     }
-
-
-
 }
