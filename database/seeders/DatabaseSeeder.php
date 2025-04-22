@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Manager;
+use App\Models\Admin;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -26,6 +27,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RoleAndPermissionSeeder::class);
         $this->call(ManagerSeeder::class);
+        $this->call(AdminSeeder::class);
+
         
     }
 }

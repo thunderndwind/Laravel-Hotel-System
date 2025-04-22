@@ -17,21 +17,24 @@ class ManagerSeeder extends Seeder
     public function run(): void
     {
 
-        $manager = Manager::create([
-            'national_id' => '123456789',
-            'phone_number' => '01156755044',
-            'avatar_image' => 'manager.jpg',
-        ]);
-
-        $managerUser = new User([
-            'name' => 'nouran',
-            'email' => 'nourannn@gmail.com',
-            'password' => Hash::make('12345678'),
-        ]);
-
-        $managerUser->profile()->associate($manager);
-        $managerUser->save();
-
-        $managerUser->assignRole('manager');
+        $manager = Manager::firstOrCreate(
+            ['national_id' => '567895432'],
+            [
+                'phone_number' => '01156755044',
+                'avatar_image' => 'manager2.jpg',
+            ]
+        );
+    
+        $managerUser = User::firstOrCreate(
+            ['email' => 'nourenshallah@gmail.com'],
+            [
+                'name' => 'nouran',
+                'password' => Hash::make('12345678'),
+                'profile_type' => Manager::class,
+                'profile_id' => $manager->id
+            ]
+        );
+    
+        $managerUser->assignRole('Manager');
     }
 }
