@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "df6bae55bbd33b0c6f58952a0d0fe01c",
+    "content-hash": "05993f3cdd829fb45570fabd13897c75",
     "packages": [
         {
             "name": "astrotomic/laravel-translatable",
@@ -2224,126 +2224,6 @@
             "time": "2024-12-08T08:18:47+00:00"
         },
         {
-            "name": "lwwcas/laravel-countries",
-            "version": "4.12.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/lwwcas/laravel-countries.git",
-                "reference": "85b6bcaabbf4987f70459af7896c4db19bdb4fe2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/lwwcas/laravel-countries/zipball/85b6bcaabbf4987f70459af7896c4db19bdb4fe2",
-                "reference": "85b6bcaabbf4987f70459af7896c4db19bdb4fe2",
-                "shasum": ""
-            },
-            "require": {
-                "astrotomic/laravel-translatable": "^11.8",
-                "laravel/framework": "^10.48|^11.31|^12.0",
-                "php": "^8.2|^8.3",
-                "spatie/laravel-package-tools": "1.92.*"
-            },
-            "require-dev": {
-                "doctrine/dbal": "^3.0",
-                "laravel/legacy-factories": "^1.4",
-                "mockery/mockery": "^1.6",
-                "nunomaduro/termwind": "^2.3.0",
-                "orchestra/testbench": "^9.12",
-                "pestphp/pest": "^3.7",
-                "pestphp/pest-plugin-laravel": "^3.1"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "WCountries": "Lwwcas\\LaravelCountries\\Facades\\WCountries"
-                    },
-                    "providers": [
-                        "Lwwcas\\LaravelCountries\\Providers\\WCountriesServiceProvider"
-                    ]
-                },
-                "features": {
-                    "iso-support": "Handles ISO Alpha-2, Alpha-3, and numeric country codes with ease.",
-                    "data-seeding": "Includes customizable seeders for automatic country data population.",
-                    "query-scopes": "Predefined query scopes for easy access to country data.",
-                    "artisan-commands": "Includes artisan commands for managing country and language data.",
-                    "country-relations": "Easily link country data to other models using foreign key relationships.",
-                    "geographical-data": "Provides precise latitude/longitude coordinates and SVG maps for each country.",
-                    "multilingual-support": "Fully supports translations for country names and metadata.",
-                    "laravel-compatibility": "Supports Laravel 9.x, 10.x, 11.x, ensuring smooth integration.",
-                    "dynamic-language-install": "Languages can be installed or removed dynamically at any time."
-                },
-                "compatibility": {
-                    "laravel": {
-                        "current": "10.x, 11.x, 12.x",
-                        "planned": [
-                            "13.x"
-                        ],
-                        "untested": [
-                            "13.x"
-                        ]
-                    }
-                },
-                "language-management": {
-                    "dynamic-install": true,
-                    "default-language": "en",
-                    "supported-languages": [
-                        "ar",
-                        "nl",
-                        "en",
-                        "de",
-                        "it",
-                        "pt",
-                        "ru",
-                        "es"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Lwwcas\\LaravelCountries\\": "src/",
-                    "Lwwcas\\LaravelCountries\\Config\\": "src/config/",
-                    "Lwwcas\\LaravelCountries\\Database\\migrations\\": "src/database/migrations/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Lucas Duarte O. Monteiro",
-                    "email": "lwwcas@gmail.com",
-                    "homepage": "http://www.lucasduarte.dev",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A comprehensive package for managing country data in Laravel applications, including multilingual support, geographic coordinates, and detailed metadata for seamless integration with Laravel.",
-            "homepage": "https://lwwcas.github.io/laravel-countries/",
-            "keywords": [
-                "ISO codes",
-                "coordinates",
-                "countries",
-                "country data",
-                "geography",
-                "geojson",
-                "geolocation",
-                "laravel",
-                "laravel package",
-                "lucas duarte",
-                "lwwcas",
-                "multilingual",
-                "svg maps",
-                "world countries"
-            ],
-            "support": {
-                "docs": "https://github.com/lwwcas/laravel-countries/docs",
-                "issues": "https://github.com/lwwcas/laravel-countries/issues",
-                "source": "https://github.com/lwwcas/laravel-countries"
-            },
-            "time": "2025-03-30T18:18:10+00:00"
-        },
-        {
             "name": "monolog/monolog",
             "version": "3.9.0",
             "source": {
@@ -3839,65 +3719,6 @@
                 }
             ],
             "time": "2025-04-16T07:30:03+00:00"
-        },
-        {
-            "name": "stripe/stripe-php",
-            "version": "v17.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "01ca9b5fdd899b8e4b69f83b85e09d96f6240220"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/01ca9b5fdd899b8e4b69f83b85e09d96f6240220",
-                "reference": "01ca9b5fdd899b8e4b69f83b85e09d96f6240220",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-json": "*",
-                "ext-mbstring": "*",
-                "php": ">=5.6.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "3.72.0",
-                "phpstan/phpstan": "^1.2",
-                "phpunit/phpunit": "^5.7 || ^9.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Stripe\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Stripe and contributors",
-                    "homepage": "https://github.com/stripe/stripe-php/contributors"
-                }
-            ],
-            "description": "Stripe PHP Library",
-            "homepage": "https://stripe.com/",
-            "keywords": [
-                "api",
-                "payment processing",
-                "stripe"
-            ],
-            "support": {
-                "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v17.1.1"
-            },
-            "time": "2025-04-05T00:09:14+00:00"
         },
         {
             "name": "symfony/clock",
@@ -7608,16 +7429,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.17",
+            "version": "11.5.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "fd2e863a2995cdfd864fb514b5e0b28b09895b5c"
+                "reference": "fc3e887c7f3f9917e1bf61e523413d753db00a17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fd2e863a2995cdfd864fb514b5e0b28b09895b5c",
-                "reference": "fd2e863a2995cdfd864fb514b5e0b28b09895b5c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fc3e887c7f3f9917e1bf61e523413d753db00a17",
+                "reference": "fc3e887c7f3f9917e1bf61e523413d753db00a17",
                 "shasum": ""
             },
             "require": {
@@ -7689,7 +7510,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.17"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.18"
             },
             "funding": [
                 {
@@ -7701,11 +7522,19 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/phpunit/phpunit",
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-08T07:59:11+00:00"
+            "time": "2025-04-22T06:09:49+00:00"
         },
         {
             "name": "sebastian/cli-parser",

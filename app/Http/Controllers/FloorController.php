@@ -44,19 +44,17 @@ class FloorController extends Controller
             })
             ->with('manager')
             ->paginate($perPage)
-            ->through(function ($floor) use ($user) {
-                return [
-                    'id' => $floor->id,
-                    'name' => $floor->name,
-                    'number' => $floor->number,
-                    'manager' => $user->hasRole('Admin') ? $floor->manager->name : null,
-                    'created_at' => $floor->created_at->format('Y-m-d H:i'),
-                    'can_edit' => $user->can('update', $floor),
-                    'can_delete' => $user->can('delete', $floor),
-                    'show_actions' => $user->hasRole('Admin') ||
-                        ($user->hasRole('Manager') && $floor->manager_id === $user->id)
-                ];
-            });
+            ->through(fn($floor) => [
+                'id' => $floor->id,
+                'name' => $floor->name,
+                'number' => $floor->number,
+                'manager' => $user->hasRole('Admin') ? $floor->manager->name : null,
+                'created_at' => $floor->created_at->format('Y-m-d H:i'),
+                'can_edit' => $user->can('update', $floor),
+                'can_delete' => $user->can('delete', $floor),
+                'show_actions' => $user->hasRole('Admin') ||
+                    ($user->hasRole('Manager') && $floor->manager_id === $user->id)
+            ]);
 
         return Inertia::render('Floors/Index', [
             'floors' => $floors,
