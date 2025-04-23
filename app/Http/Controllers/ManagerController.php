@@ -30,7 +30,7 @@ class ManagerController extends Controller
                 'email' => $user->email,
                 'national_id' => $user->profile->national_id,
                 'phone_number' => $user->profile->phone_number,
-                'avatar_image' => $user->profile->avatar_image,
+                'avatar_image' => $user->profile->avatar_image ? '/storage/' . $user->profile->avatar_image : '/storage/avatars/Default.png',
                 'can_edit' => Auth::user()->can('update', $user->profile),
             ]);
 
@@ -50,7 +50,19 @@ class ManagerController extends Controller
     {
         $this->authorize('create', Manager::class);
 
-        $manager = Manager::create($request->validated());
+        $avatarPath = null;
+        if ($request->hasFile('avatar_image')) {
+            $avatarPath = $request->file('avatar_image')->store('avatars', 'public');
+        }
+        else{
+            $avatarPath = 'avatars/Default.png';
+        }
+        
+
+        $manager = Manager::create(array_merge(
+            $request->validated(),
+            ['avatar_image' => $avatarPath]
+        ));
 
         $user = new User([
             'name' => $request->name,

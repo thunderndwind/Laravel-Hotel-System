@@ -17,7 +17,7 @@ class StoreManagerRequest extends FormRequest
         return [
             'national_id' => ['required', 'digits:9', 'unique:managers,national_id'],
             'phone_number' => ['required'],
-            'avatar_image' => ['nullable', 'string'],
+            'avatar_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
@@ -42,6 +42,10 @@ class StoreManagerRequest extends FormRequest
 
             'password.required' => 'Password is required.',
             'password.min' => 'Password must be at least 8 characters.',
+
+            'avatar_image.image' => 'Avatar image must be an image file.',
+            'avatar_image.mimes' => 'Avatar image must be a file of type: jpeg, png, jpg, gif.',
+            'avatar_image.max' => 'Avatar image size must not exceed 2MB.',
         ];
     }
 }

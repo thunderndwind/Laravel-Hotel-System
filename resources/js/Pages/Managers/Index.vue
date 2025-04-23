@@ -14,11 +14,12 @@ function destroy(id) {
 <template>
   <div>
     <h1 class="text-xl font-bold mb-4">Managers List</h1>
-    <Link :href="route('managers.create')" class="text-blue-500">Create New</Link>
+    <Link :href="route('managers.create')" class="text-blue-500">Create New Manager </Link>
 
     <table class="mt-4 w-full">
       <thead>
         <tr>
+          <th>Avatar</th>
           <th>Name</th>
           <th>Email</th>
           <th>National ID</th>
@@ -28,6 +29,13 @@ function destroy(id) {
       </thead>
       <tbody>
         <tr v-for="manager in managers.data" :key="manager.id">
+          <td>
+            <img
+              :src="manager.avatar_image"
+              alt="Avatar"
+              class="w-12 h-12 rounded-full"
+            />
+          </td>
           <td>{{ manager.name }}</td>
           <td>{{ manager.email }}</td>
           <td>{{ manager.national_id }}</td>

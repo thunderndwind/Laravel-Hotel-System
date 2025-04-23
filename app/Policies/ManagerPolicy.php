@@ -10,7 +10,7 @@ class ManagerPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('Admin') || $user->hasRole('Manager') ; // i added the manager role just for testing
+        return $user->hasRole('Admin');
     }
 
     public function view(User $user, Manager $manager): bool

@@ -1,0 +1,191 @@
+Simple Hotel System
+Description :-
+We want to build a hotel system that helps different hotel managers to
+manage their hotels.
+Roles :-
+1- Admin
+- Admin will have access to everything in the system ,he can see any
+links or make any action (Manager and Receptionist) can do with
+these extra functionalities
+- We will have only one admin in the system and by default will be
+seeded through laravel seeders , with email (admin@admin.com) &
+pw (123456) but we can create other admins through console
+command , for example i can make this
+php artisan create:admin --name=admin2@admin.com
+--password=123456
+- In the left menu we will have three links (Manage Managers ,
+Manage Receptionists , Manage Clients ) these links will allow us
+to do CRUD operations
+- Manager & Receptionist will have (email, name , password ,
+national_id, avatar_image )
+- national_id , email must be unique, password must be at least 6
+chars , avatar_image must be an image with extensions jpg,jpeg and
+if there’s no avatar_image then we provide a default one
+2- Manager
+- Managers can do what Receptionist can do except he can see all
+clients and make CRUD on any client when he open Manage
+Clients page
+Manage Receptionists
+- Manager will have a menu called Manage Receptionists where
+manager can make CRUD on Receptionists and Ban Or UnBan
+Receptionist
+- In Manage Receptionists page we will need to show these columns
+(name , email , created at date only) but if the current logged in
+is Admin we will need to show an extra column called Manager
+Name , which is the name of the manager who created the
+receptionist
+- (Actions column will have Edit , Delete ) and if banned then there
+will be an action called unban , and if unbanned then will have
+an action called ban . Manager can see all receptionist but can
+only make these actions on his created receptionist only
+Manage Floors
+- Manager will have a menu called Manage Floors , where Manager
+can make CRUD on Floors , the floor must have (name , number)
+name must be at least 3 chars , and number must be auto
+generated from the system and not less than 4 digits and when
+editing we can’t modify this number
+- In Manage Floors page will show the name , number but if the
+current logged in is Admin we will need to show an extra column
+called Manager Name , which is the name of the manager who
+created the floor
+- Next to the name and number columns of Floor we will need to show
+actions for edit and delete if the manager created that floor
+otherwise the actions column won’t be shown
+Manage Rooms
+- Manager will have a menu called Manage Rooms where manager
+can make CRUD on Rooms , the room will have (number , capacity ,
+price) (Price Must Be Stored In Database in Cents And To Be
+Shown In Dollars ) , number must be at least 4 digits and unique ,
+capacity must be integer , price is required and must be numeric
+(integer)
+- In Manage Rooms page will show the number , capacity , price in
+dollars and the floor name that this room belongs to but if the
+current logged in is Admin we will need to show an extra column
+called Manager Name , which is the name of the manager who
+created the room
+- Next to the columns of Room we will need to show actions for edit
+and delete if the manager created that room otherwise the
+actions column won’t be show
+- When Deleting a room make sure it’s not reserved
+- When Deleting a floor make sure that it doesn’t have rooms
+associated to it
+3- Receptionist
+- Receptionist when open Manage Clients page will only see the
+clients who haven’t been approved and receptionist can approve
+clients
+- Receptionist will have a menu called (My Approved Clients) where
+he can only see the clients who have approved them
+- We will show ( client name , email , mobile , country , gender )
+- Receptionist will have a menu called (Clients Reservations) where
+he can see his approved clients reservations we will need to show
+in this page ( client name , client accompany number,room number ,
+client paid price )
+As for example maybe client today has reserved a room for 50$
+but tomorrow we changed the room price , so we will need to
+show how much he paid for that room
+4- Client
+- Will have a menu called (My Reservations) where he can see all of
+his reservations so in this page will show ( accompany number , room
+number , paid price)
+- Will have a menu called (Make Reservation) where he will see only
+all the available rooms that aren’t reserved and there prices and
+capacity column , and action column where it has a button called
+(Make Reservation) when he clicks on it
+- When client clicks on Make Reservation , he will get redirected to a
+page with url like this (/reservations/rooms/{roomId}) and then
+there will be a form where he can type the number of accompany so
+make sure there’s a validation that the accompany numbers
+don’t exceed the room capacity , and after that we will use Stripe
+to pay the exact room price
+- Client can make registration , we will need to know email , name ,
+avatar_image , country , gender all is required and email for sure
+is unique , and countries must be drop down list from the
+package , also gender must be Male Or Female
+- Client after make registration will be pending approval
+- After Client being approved by any other roles we will need to
+greet him by sending an email using laravel notifications and it
+must be Queued again Must Be Queued - Must Be Queued -
+Must Be Queued
+So read this page very very very carefully
+https://laravel.com/docs/master/notifications
+- We need a schedule command that runs daily using laravel , that
+will send an email notification to clients who didn’t login from the
+past month , and telling them that we miss you
+A Code Example that will be like:-
+$schedule->command(LoginReminder::class)->daily();
+So read Very Veryyyyyyyy Carefully
+https://laravel.com/docs/master/scheduling#introduction
+- Choose one Route only And Make Api Controller For Example
+Api/RoomsController.php@index and then apply sanctum
+authentication on it
+System General Rules
+- All tables in the system must use DataTables component and
+server side paginated - for Bonus all logical Fields Must Be
+Searchable And Sortable like (name , price , email , room
+number and so on)
+- All charts in the system must use Chart Js and Data Retrieved By
+Ajax
+- All Delete Buttons must show a warning before deleting and also
+must be done through ajax requests , and if the ajax request
+succeeded you can then refresh the Datatables
+- Price Must Be Stored In Database in Cents And To Be Shown In
+Dollar my recommendation to use Int or BigInt . also check this
+article for different perspective of using Money Or Decimal types
+- All of the users can change their profile info like name or email
+- Use default laravel auth, and make sure the forgot password
+functionality works
+Bonus (Bonus Is Approved If The Old Code Is Clean):-
+- Try To Reduce Or Eliminate The Duplication In
+Code , And Make Your Code More Readable And
+Pleasing For Eye , If The Code Isn’t Clean Then
+Any Bonus Won’t Be Counted As Finished
+Statistics (Bonus)
+- We will have a menu called Statistics , it will open a page which will
+have four charts
+(Male - Female Reservation) pie chart that shows how much
+percent males to females reservation
+(Reservations Revenue) basic line chart which will show how
+much money we got in 12 months for this year, this chart by default
+will show current year
+(Reservations Countries) pie chart to show each country name and
+how many reservations have been made from this country
+(Top Reservations Clients) pie chart to show the top 10 clients
+with there reservations number , for example will show (ahmed : 20 ,
+mohamed : 3 , ali :4 , … ) where ahmed is the client name and 20 is
+the number of reservations
+- Deploy Your Project On Laravel Cloud
+https://cloud.laravel.com/
+- Use laravel cache to cache the drop down list of countries
+- All Charts support filtering by year , so i can choose a specific year on
+each chart and it will show it’s statistics
+- Managers Can Export all the clients as excel sheet
+Project General Rules
+- All classes must follow StudlyCase (pascal case) naming for
+example ( PostsController , UsersController , Post , StoreRequest)
+- All routes must follow resource naming convention
+- All Middlewares must be applied on routes (check Route::group)
+and not to be applied on controller
+- All Models must be Singular like (Post , Comment , User , Country ,
+Floor , Room , Reservation)
+- Don’t Push Any Deadly Comments on the Git Repo like :-
+//dd($request); // $user = User::first();
+Project Resources :-
+- https://inertiajs.com/ & https://www.shadcn-vue.com/ (Mandatory)
+- DataTables we will use shadcn datatable component and pagination must be
+done server side by setting manualPagination to true (Mandatory)
+- For roles & permissions ( Mandatory )
+https://github.com/spatie/laravel-permission
+- For Ban Or Unban you can use
+https://github.com/cybercog/laravel-ban
+- For Api Authentication (Mandatory) we will use laravel sanctum
+- For charts use chartjs ( Mandatory If You Will Work On Bonus )
+https://www.chartjs.org/
+- For sorting/filtering datatables we will use
+(Mandatory If You Will Work On Bonus )
+https://spatie.be/docs/laravel-query-builder/v6/introduction
+- For Stripe(Accept Online Payment) , follow the quick start guide ( Mandatory )
+https://stripe.com/docs/quickstart
+- For countries you can use ( Mandatory )
+https://github.com/lwwcas/laravel-countries
+- For Excel you can use
+https://github.com/Maatwebsite/Laravel-Excel

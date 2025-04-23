@@ -6,9 +6,13 @@ const form = useForm({
   email: '',
   national_id: '',
   phone_number: '',
-  avatar_image: '',
+  avatar_image: null, 
   password: '',
 });
+
+function handleFileChange(event) {
+  form.avatar_image = event.target.files[0];
+}
 
 function submit() {
   form.post(route('managers.store'));
@@ -23,7 +27,7 @@ function submit() {
       <input v-model="form.email" type="email" placeholder="Email" />
       <input v-model="form.national_id" placeholder="National ID" />
       <input v-model="form.phone_number" placeholder="Phone Number" />
-      <input v-model="form.avatar_image" placeholder="Avatar Image URL" />
+      <input type="file" accept="image/*" @change="handleFileChange" />
       <input v-model="form.password" type="password" placeholder="Password" />
       <button type="submit">Create</button>
     </form>
