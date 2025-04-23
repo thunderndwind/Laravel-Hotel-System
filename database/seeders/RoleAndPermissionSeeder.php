@@ -16,24 +16,27 @@ class RoleAndPermissionSeeder extends Seeder
      */
     public function run(): void
     {
-         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
 
-         $roles = ['Admin', 'Manager', 'Client', 'Receptionist'];
+        $roles = ['Admin', 'Manager', 'Client', 'Receptionist'];
         foreach ($roles as $roleName) {
             Role::firstOrCreate(['name' => $roleName]);
         }
 
 
-         
+
         $clientPermissions = [
             'view rooms',
             'make reservation',
             'view reservations',
+            'update own reservations',
+            'cancel own reservations',
         ];
-        
+
         $receptionistPermissions = [
             'approve reservation',
+            'update reservations',
             'view clients',
             'create clients',
             'edit clients',
@@ -64,20 +67,23 @@ class RoleAndPermissionSeeder extends Seeder
             ...$receptionistPermissions,
             ...$clientPermissions,
             'restore managers',
+            'restore reservations',
         ]);
-    
+
         foreach ($allPermissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-    
+
         Role::findByName('Manager')->givePermissionTo(...$managerPermissions);
         Role::findByName('Receptionist')->givePermissionTo(...$receptionistPermissions);
         Role::findByName('Client')->givePermissionTo(...$clientPermissions);
 
 
-        $adminPermissions = Permission::where('name', '!=', 'make reservation')->get();
+        $adminPermissions = Permission::where('name', '!=', 'make reservation')
+            ->where('name', '!=', 'update own reservations')
+            ->where('name', '!=', 'cancel own reservations')
+            ->get();
         Role::findByName('Admin')->syncPermissions($adminPermissions);
-
     }
 }

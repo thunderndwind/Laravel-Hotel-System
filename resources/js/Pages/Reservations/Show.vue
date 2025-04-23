@@ -1,5 +1,5 @@
 <template>
-  <AppLayout title="Reservation Details">
+  <AuthenticatedLayout title="Reservation Details">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
         Reservation Details
@@ -8,157 +8,152 @@
 
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <!-- Status Banner -->
-        <div class="mb-6">
-          <div :class="{
-            'p-4 rounded-md': true,
-            'bg-green-50 text-green-800 border border-green-200': reservation.status === 'active',
-            'bg-blue-50 text-blue-800 border border-blue-200': reservation.status === 'upcoming',
-            'bg-gray-50 text-gray-800 border border-gray-200': reservation.status === 'completed',
-            'bg-red-50 text-red-800 border border-red-200': reservation.status === 'cancelled'
-          }">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <CheckCircleIcon v-if="reservation.status === 'active'" class="h-5 w-5" />
-                <ClockIcon v-else-if="reservation.status === 'upcoming'" class="h-5 w-5" />
-                <BadgeCheckIcon v-else-if="reservation.status === 'completed'" class="h-5 w-5" />
-                <XCircleIcon v-else-if="reservation.status === 'cancelled'" class="h-5 w-5" />
-              </div>
-              <div class="ml-3">
-                <h3 class="text-sm font-medium">
-                  {{ statusMessage }}
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <!-- Reservation Status Banner -->
+          <div class="border-b border-gray-200" 
+               :class="{
+                 'bg-green-50': reservation.status === 'active',
+                 'bg-blue-50': reservation.status === 'upcoming',
+                 'bg-gray-50': reservation.status === 'completed'
+               }">
+            <div class="p-6 flex items-center justify-between">
+              <div class="flex items-center">
+                <div :class="{
+                  'px-3 py-1 text-sm rounded-full font-medium mr-3': true,
+                  'bg-green-100 text-green-800': reservation.status === 'active',
+                  'bg-blue-100 text-blue-800': reservation.status === 'upcoming',
+                  'bg-gray-100 text-gray-800': reservation.status === 'completed'
+                }">
+                  {{ reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1) }}
+                </div>
+                <h3 class="text-xl font-medium">
+                  Reservation #{{ reservation.id }}
                 </h3>
+              </div>
+              <div class="flex">
+                <Link 
+                  v-if="reservation.can_edit"
+                  :href="route('reservations.edit', reservation.id)" 
+                  class="inline-flex items-center px-4 py-2 mr-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:ring focus:ring-blue-200 active:text-gray-800 active:bg-gray-50"
+                >
+                  Edit
+                </Link>
+                <button 
+                  v-if="reservation.can_delete"
+                  @click="confirmCancellation"
+                  class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:border-red-700 focus:ring focus:ring-red-200"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <!-- Reservation Details -->
-          <div class="p-6 bg-white border-b border-gray-200">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <!-- Left Column - Reservation Info -->
-              <div class="col-span-2">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Reservation Information</h3>
-                
+          
+          <div class="p-6">
+            <!-- Reservation Details -->
+            <div class="mb-8">
+              <h4 class="text-lg font-medium text-gray-900 mb-4">Reservation Information</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p class="text-sm text-gray-600">Booking Date</p>
+                  <p class="font-medium">{{ formatDateTime(reservation.created_at) }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Last Updated</p>
+                  <p class="font-medium">{{ formatDateTime(reservation.updated_at) }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Check-in Date</p>
+                  <p class="font-medium">{{ formatDate(reservation.check_in_date) }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Check-out Date</p>
+                  <p class="font-medium">{{ formatDate(reservation.check_out_date) }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Duration</p>
+                  <p class="font-medium">{{ reservation.duration }} nights</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Number of Guests</p>
+                  <p class="font-medium">{{ reservation.total_guests }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Total Price</p>
+                  <p class="font-medium text-lg">${{ reservation.paid_price }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Room Details -->
+            <div class="mb-8">
+              <h4 class="text-lg font-medium text-gray-900 mb-4">Room Information</h4>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="flex items-center justify-between mb-4">
+                  <h5 class="text-lg font-medium">Room {{ reservation.room.number }}</h5>
+                  <Link 
+                    :href="route('rooms.show', reservation.room.id)"
+                    class="text-sm text-indigo-600 hover:text-indigo-500"
+                  >
+                    View Room Details
+                  </Link>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p class="text-sm font-medium text-gray-500">Reservation ID</p>
-                    <p class="mt-1 text-sm text-gray-900">#{{ reservation.id }}</p>
+                    <p class="text-sm text-gray-600">Type</p>
+                    <p class="font-medium">{{ reservation.room.type || 'Standard' }}</p>
                   </div>
-                  
                   <div>
-                    <p class="text-sm font-medium text-gray-500">Status</p>
-                    <p class="mt-1">
-                      <span :class="{
-                        'px-2 py-1 text-xs rounded-full font-medium': true,
-                        'bg-green-100 text-green-800': reservation.status === 'active',
-                        'bg-blue-100 text-blue-800': reservation.status === 'upcoming',
-                        'bg-gray-100 text-gray-800': reservation.status === 'completed',
-                        'bg-red-100 text-red-800': reservation.status === 'cancelled'
-                      }">
-                        {{ reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1) }}
-                      </span>
-                    </p>
+                    <p class="text-sm text-gray-600">Floor</p>
+                    <p class="font-medium">{{ reservation.room.floor }}</p>
                   </div>
-                  
                   <div>
-                    <p class="text-sm font-medium text-gray-500">Check-in Date</p>
-                    <p class="mt-1 text-sm text-gray-900">{{ formatDate(reservation.check_in_date) }}</p>
+                    <p class="text-sm text-gray-600">Capacity</p>
+                    <p class="font-medium">{{ reservation.room.capacity }} guests</p>
                   </div>
-                  
                   <div>
-                    <p class="text-sm font-medium text-gray-500">Check-out Date</p>
-                    <p class="mt-1 text-sm text-gray-900">{{ formatDate(reservation.check_out_date) }}</p>
-                  </div>
-                  
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Duration</p>
-                    <p class="mt-1 text-sm text-gray-900">{{ calculateDuration(reservation.check_in_date, reservation.check_out_date) }} nights</p>
-                  </div>
-                  
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Number of Guests</p>
-                    <p class="mt-1 text-sm text-gray-900">{{ reservation.accompany_number }}</p>
-                  </div>
-                  
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Total Price</p>
-                    <p class="mt-1 text-sm text-gray-900 font-bold">${{ reservation.paid_price }}</p>
-                  </div>
-                  
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Booked On</p>
-                    <p class="mt-1 text-sm text-gray-900">{{ formatDate(reservation.created_at) }}</p>
+                    <p class="text-sm text-gray-600">Price Per Night</p>
+                    <p class="font-medium">${{ reservation.room.price }}</p>
                   </div>
                 </div>
-                
-                <!-- Action Buttons -->
-                <div class="mt-8 flex flex-wrap gap-3" v-if="reservation.status === 'upcoming'">
-                  <Link 
-                    :href="route('reservations.edit', reservation.id)"
-                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring focus:ring-indigo-300 disabled:opacity-25 transition"
-                  >
-                    <PencilIcon class="h-4 w-4 mr-1" />
-                    Modify Reservation
-                  </Link>
-                  
-                  <button 
-                    @click="confirmCancellation()"
-                    class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-900 focus:outline-none focus:border-red-900 focus:ring focus:ring-red-300 disabled:opacity-25 transition"
-                  >
-                    <XCircleIcon class="h-4 w-4 mr-1" />
-                    Cancel Reservation
-                  </button>
+                <div class="mt-4">
+                  <p class="text-sm text-gray-600">Description</p>
+                  <p class="mt-1">{{ reservation.room.description || 'No description available' }}</p>
                 </div>
               </div>
-              
-              <!-- Right Column - Room Info -->
-              <div class="border rounded-lg overflow-hidden">
-                <div class="p-4 bg-gray-50 border-b">
-                  <h3 class="text-lg font-medium text-gray-900">Room Information</h3>
+            </div>
+            
+            <!-- Guest Information -->
+            <div>
+              <h4 class="text-lg font-medium text-gray-900 mb-4">Guest Information</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p class="text-sm text-gray-600">Name</p>
+                  <p class="font-medium">{{ reservation.user.name }}</p>
                 </div>
-                <div class="p-4">
-                  <div class="mb-4">
-                    <img 
-                      v-if="reservation.room.image_url" 
-                      :src="reservation.room.image_url" 
-                      :alt="'Room ' + reservation.room.number"
-                      class="w-full h-48 object-cover rounded"
-                    />
-                    <div v-else class="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
-                      <span class="text-gray-400">No image available</span>
-                    </div>
-                  </div>
-
-                  <h4 class="text-md font-medium text-gray-900">Room {{ reservation.room.number }}</h4>
-                  <p class="text-sm text-gray-600 mt-1">{{ reservation.room.type }}</p>
-                  
-                  <div class="mt-3 space-y-2">
-                    <p class="text-sm"><span class="font-medium">Floor:</span> {{ reservation.room.floor }}</p>
-                    <p class="text-sm"><span class="font-medium">Capacity:</span> {{ reservation.room.capacity }} guests</p>
-                    <p class="text-sm"><span class="font-medium">Price:</span> ${{ reservation.room.price }} per night</p>
-                  </div>
-                  
-                  <p class="mt-3 text-sm text-gray-600">{{ reservation.room.description }}</p>
-                  
-                  <div class="mt-4">
-                    <Link 
-                      :href="route('rooms.show', reservation.room.id)"
-                      class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      View Room Details
-                    </Link>
-                  </div>
+                <div>
+                  <p class="text-sm text-gray-600">Email</p>
+                  <p class="font-medium">{{ reservation.user.email }}</p>
                 </div>
               </div>
+            </div>
+          </div>
+          
+          <div class="p-6 border-t border-gray-200 bg-gray-50">
+            <div class="flex justify-between">
+              <Link 
+                :href="route('reservations.index')" 
+                class="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Back to Reservations
+              </Link>
             </div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Cancellation Modal -->
+    <!-- Cancellation Confirmation Modal -->
     <Modal :show="showCancellationModal" @close="showCancellationModal = false">
       <div class="p-6">
         <h2 class="text-lg font-medium text-gray-900">Cancel Reservation</h2>
@@ -175,59 +170,50 @@
         </div>
       </div>
     </Modal>
-  </AppLayout>
+  </AuthenticatedLayout>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
-import { CheckCircleIcon, ClockIcon, BadgeCheckIcon, XCircleIcon, PencilIcon } from '@heroicons/vue/outline';
 import ToastService from '@/Services/ToastService';
 
 // Props
 const props = defineProps({
-  reservation: Object
+  reservation: {
+    type: Object,
+    required: true
+  }
 });
 
 // State
 const showCancellationModal = ref(false);
 const processing = ref(false);
 
-// Computed
-const statusMessage = computed(() => {
-  switch (props.reservation.status) {
-    case 'active':
-      return 'Your reservation is currently active.';
-    case 'upcoming':
-      return 'Your reservation is confirmed and upcoming.';
-    case 'completed':
-      return 'This reservation has been completed.';
-    case 'cancelled':
-      return 'This reservation has been cancelled.';
-    default:
-      return '';
-  }
-});
-
 // Methods
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { 
     weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
   });
 };
 
-const calculateDuration = (checkInDate, checkOutDate) => {
-  const checkIn = new Date(checkInDate);
-  const checkOut = new Date(checkOutDate);
-  return Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+const formatDateTime = (dateTimeString) => {
+  const date = new Date(dateTimeString);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 };
 
 const confirmCancellation = () => {
@@ -239,15 +225,15 @@ const cancelReservation = () => {
   
   const toastId = ToastService.loading('Cancelling Reservation', 'Please wait...');
   
-  router.delete(route('reservations.cancel', props.reservation.id), {}, {
+  router.delete(route('reservations.destroy', props.reservation.id), {}, {
     onSuccess: () => {
       ToastService.loadingToSuccess(toastId, 'Reservation Cancelled', 'Your reservation has been successfully cancelled.');
-      showCancellationModal.value = false;
-      processing.value = false;
+      router.visit(route('reservations.index'));
     },
     onError: () => {
       ToastService.loadingToError(toastId, 'Error', 'There was a problem cancelling your reservation.');
       processing.value = false;
+      showCancellationModal.value = false;
     }
   });
 };

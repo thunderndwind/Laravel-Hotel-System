@@ -24,6 +24,14 @@ class ReservationController extends Controller
         // Get the authenticated user
         $user = Auth::user();
 
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
         // Get client profile from user
         $client = $user->profile;
 
@@ -92,6 +100,14 @@ class ReservationController extends Controller
         // Get the authenticated user
         $user = Auth::user();
 
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
         // Get client profile from user
         $client = $user->profile;
 
@@ -126,6 +142,14 @@ class ReservationController extends Controller
     {
         // Get the authenticated user
         $user = Auth::user();
+
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
 
         // Get client profile from user
         $client = $user->profile;
@@ -200,6 +224,14 @@ class ReservationController extends Controller
         // Get the authenticated user
         $user = Auth::user();
 
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
         // Get client profile from user
         $client = $user->profile;
 
@@ -229,6 +261,14 @@ class ReservationController extends Controller
     {
         // Get the authenticated user
         $user = Auth::user();
+
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
 
         // Get client profile from user
         $client = $user->profile;
@@ -265,6 +305,14 @@ class ReservationController extends Controller
     {
         // Get the authenticated user
         $user = Auth::user();
+
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
 
         // Get client profile from user
         $client = $user->profile;
@@ -339,6 +387,14 @@ class ReservationController extends Controller
     {
         // Get the authenticated user
         $user = Auth::user();
+
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
 
         // Get client profile from user
         $client = $user->profile;

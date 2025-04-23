@@ -1,5 +1,5 @@
 <template>
-  <AppLayout title="Edit Reservation">
+  <AuthenticatedLayout title="Edit Reservation">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
         Edit Reservation
@@ -124,13 +124,13 @@
         </div>
       </div>
     </div>
-  </AppLayout>
+  </AuthenticatedLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Button from '@/Components/PrimaryButton.vue';
 import Input from '@/Components/TextInput.vue';
 import Label from '@/Components/InputLabel.vue';

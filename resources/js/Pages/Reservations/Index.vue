@@ -1,5 +1,5 @@
 <template>
-  <AppLayout title="My Reservations">
+  <AuthenticatedLayout title="My Reservations">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
         My Reservations
@@ -64,11 +64,11 @@
                     <h3 class="ml-2 text-lg font-medium text-gray-900">Room {{ reservation.room.number }}</h3>
                   </div>
                   <div class="mt-2 flex items-center text-sm text-gray-500">
-                    <CalendarIcon class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                    <span class="flex-shrink-0 mr-1.5 text-gray-400">📅</span>
                     {{ formatDate(reservation.check_in_date) }} - {{ formatDate(reservation.check_out_date) }}
                   </div>
                   <div class="mt-2 flex items-center text-sm text-gray-500">
-                    <UserGroupIcon class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                    <span class="flex-shrink-0 mr-1.5 text-gray-400">👥</span>
                     {{ reservation.accompany_number }} {{ reservation.accompany_number === 1 ? 'guest' : 'guests' }}
                   </div>
                 </div>
@@ -81,7 +81,7 @@
                       :href="route('reservations.show', reservation.id)" 
                       class="inline-flex items-center px-3 py-2 mr-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      <EyeIcon class="h-4 w-4 mr-1" />
+                      <span class="mr-1">👁️</span>
                       View
                     </Link>
                     <Link 
@@ -89,7 +89,7 @@
                       :href="route('reservations.edit', reservation.id)" 
                       class="inline-flex items-center px-3 py-2 mr-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      <PencilIcon class="h-4 w-4 mr-1" />
+                      <span class="mr-1">✏️</span>
                       Edit
                     </Link>
                     <button 
@@ -97,7 +97,7 @@
                       @click="confirmCancellation(reservation)"
                       class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                     >
-                      <XCircleIcon class="h-4 w-4 mr-1" />
+                      <span class="mr-1">❌</span>
                       Cancel
                     </button>
                   </div>
@@ -131,14 +131,13 @@
         </div>
       </div>
     </Modal>
-  </AppLayout>
+  </AuthenticatedLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import { CalendarIcon, UserGroupIcon, EyeIcon, PencilIcon, XCircleIcon } from '@heroicons/vue/outline';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
