@@ -41,37 +41,42 @@ const clearSearch = () => {
 </script>
 
 <template>
-    <div class="relative w-full">
-        <Input
-            v-model="localValue"
-            :placeholder="placeholder"
-            class="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10 pr-10"
-            @keyup.enter="handleSearch"
-            :class="[
-                '[&::-webkit-search-cancel-button]:hidden',
-                '[&::-webkit-search-decoration]:hidden',
-                '[&::-webkit-search-results-button]:hidden',
-                '[&::-webkit-search-results-decoration]:hidden',
-            ]"
-        />
+    <div class="flex items-center gap-2 w-full">
         <Button
             variant="ghost"
             size="sm"
-            class="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+            class="h-10 w-10 shrink-0 flex items-center justify-center hover:bg-transparent focus:ring-0 focus:ring-offset-0"
             @click="handleSearch"
         >
             <MagnifyingGlassIcon
-                class="h-5 w-5 text-gray-400 hover:text-gray-600"
+                class="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors"
             />
         </Button>
-        <Button
-            v-if="localValue"
-            variant="ghost"
-            size="sm"
-            class="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-            @click="clearSearch"
-        >
-            <XMarkIcon class="h-5 w-5 text-gray-500 hover:text-gray-700" />
-        </Button>
+
+        <div class="relative flex-1">
+            <Input
+                v-model="localValue"
+                :placeholder="placeholder"
+                class="h-10 w-full rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pr-10"
+                @keyup.enter="handleSearch"
+                :class="[
+                    '[&::-webkit-search-cancel-button]:hidden',
+                    '[&::-webkit-search-decoration]:hidden',
+                    '[&::-webkit-search-results-button]:hidden',
+                    '[&::-webkit-search-results-decoration]:hidden',
+                ]"
+            />
+            <Button
+                v-if="localValue"
+                variant="ghost"
+                size="sm"
+                class="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent focus:ring-0 focus:ring-offset-0"
+                @click="clearSearch"
+            >
+                <XMarkIcon
+                    class="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors"
+                />
+            </Button>
+        </div>
     </div>
 </template>

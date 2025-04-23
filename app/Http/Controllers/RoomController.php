@@ -8,8 +8,10 @@ use App\Models\Room;
 use App\Models\User;
 use App\Models\Floor;
 use Inertia\Inertia;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedSort;
 
 class RoomController extends Controller
 {
@@ -18,20 +20,106 @@ class RoomController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Room::class);
+        $user = Auth::user();
+
+        // Cache user roles and permissions
+        $userRoleData = cache()->remember('user_role_data_' . $user->id, 3600, function () use ($user) {
+            return [
+                'is_admin' => $user->hasRole('Admin'),
+                'is_manager' => $user->hasRole('Manager'),
+            ];
+        });
+
+        // Get and validate request parameters
+        $perPage = min(request()->input('per_page', 10), 100);
+        $search = request()->input('search');
+        $sort = request()->input('sort', '-created_at');
+
+        // Cache key for query results
+        $cacheKey = 'rooms_' . md5(json_encode([
+            'page' => request()->input('page', 1),
+            'per_page' => $perPage,
+            'search' => $search,
+            'sort' => $sort,
+            'user' => $user->id,
+            'admin' => $userRoleData['is_admin']
+        ]));
+
+        $rooms = cache()->remember($cacheKey, 60, function () use ($user, $perPage, $search, $sort, $userRoleData) {
+            $query = QueryBuilder::for(Room::class)
+                ->select([
+                    'rooms.id',
+                    'rooms.number',
+                    'rooms.price',
+                    'rooms.capacity',
+                    'rooms.manager_id',
+                    'rooms.floor_id',
+                    'rooms.created_at',
+                    'rooms.deleted_at'
+                ])
+                ->leftJoin('users', 'rooms.manager_id', '=', 'users.id')
+                ->leftJoin('floors', 'rooms.floor_id', '=', 'floors.id')
+                ->addSelect([
+                    'users.name as manager_name',
+                    'floors.name as floor_name'
+                ])
+                ->allowedSorts([
+                    'number',
+                    'price',
+                    'capacity',
+                    'created_at',
+                    AllowedSort::callback('manager_name', function ($query, $direction) {
+                        $query->orderBy('users.name', $direction === 'desc' ? 'desc' : 'asc');
+                    }),
+                    AllowedSort::callback('floor_name', function ($query, $direction) {
+                        $query->orderBy('floors.name', $direction === 'desc' ? 'desc' : 'asc');
+                    })
+                ])
+                ->defaultSort($sort)
+                ->when($search, function ($query) use ($search) {
+                    $search = "%{$search}%";
+                    $query->where(function ($q) use ($search) {
+                        $q->where('rooms.number', 'like', $search)
+                            ->orWhere('rooms.price', 'like', $search)
+                            ->orWhere('rooms.capacity', 'like', $search)
+                            ->orWhere('users.name', 'like', $search)
+                            ->orWhere('floors.name', 'like', $search);
+                    });
+                })
+                ->when($userRoleData['is_manager'], function ($query) use ($user) {
+                    $query->where('rooms.manager_id', $user->id);
+                });
+
+            return $query->paginate($perPage)
+                ->through(function ($room) use ($userRoleData, $user) {
+                    $isManagerOwner = $userRoleData['is_manager'] && $room->manager_id === $user->id;
+                    $hasAccess = $userRoleData['is_admin'] || $isManagerOwner;
+
+                    return [
+                        'id' => $room->id,
+                        'number' => $room->number,
+                        'price' => $room->price,
+                        'capacity' => $room->capacity,
+                        'manager' => $room->manager_name ?? 'None',
+                        'floor' => $room->floor_name ?? 'None',
+                        'created_at' => $room->created_at->format('Y-m-d H:i'),
+                        'can_edit' => $hasAccess,
+                        'can_delete' => $userRoleData['is_admin'],
+                        'show_actions' => $hasAccess,
+                        'deleted_at' => $room->deleted_at,
+                        'can_restore' => $room->deleted_at && $userRoleData['is_admin']
+                    ];
+                });
+        });
 
         return Inertia::render('Rooms/Index', [
-            'rooms' => Room::with(['manager', 'floor'])
-                ->paginate(10)
-                ->through(fn($room) => [
-                    'id' => $room->id,
-                    'number' => $room->number,
-                    'price' => $room->price,
-                    'capacity' => $room->capacity,
-                    'manager' => $room->manager->name,
-                    'floor' => $room->floor->name,
-                    'can_edit' => Auth::user()->can('update', $room),
-                    'can_delete' => Auth::user()->can('delete', $room),
-                ])
+            'rooms' => $rooms,
+            'isAdmin' => $userRoleData['is_admin'],
+            'filters' => ['search' => $search, 'sort' => $sort],
+            'can' => [
+                'create_rooms' => $userRoleData['is_admin'],
+                'restore_rooms' => $userRoleData['is_admin']
+            ],
         ]);
     }
 
