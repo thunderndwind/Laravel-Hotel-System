@@ -25,20 +25,20 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $user = Auth::user();
+$user = Auth::user();
 
     if (!$user) {
         return redirect()->route('login');
     }
 
     // Check roles and redirect accordingly
-    if ($user->hasRole('admin')) {
+    if ($user->hasRole('Admin')) {
         return redirect()->route('admin.dashboard');
-    } elseif ($user->hasRole('manager')) {
+    } elseif ($user->hasRole('Managr')) {
         return redirect()->route('manager.dashboard');
-    } elseif ($user->hasRole('receptionist')) {
+    } elseif ($user->hasRole('Recetionist')) {
         return redirect()->route('receptionist.dashboard');
-    } elseif ($user->hasRole('client')) {
+    } elseif ($user->hasRole('Client')) {
         return redirect()->route('client.dashboard');
     }
 
@@ -115,11 +115,11 @@ Route::post('receptionists', [ReceptionistController::class, 'store'])
 Route::get('receptionists/{receptionist}/edit', [ReceptionistController::class, 'edit'])
     ->name('receptionists.edit')
     ->middleware('auth');
-    // Receptionist Update route    
+// Receptionist Update route        
 Route::patch('receptionists/{receptionist}', [ReceptionistController::class, 'update'])
     ->name('receptionists.update')
     ->middleware('auth');
-// Receptionist Delete route  
+// Receptionist Delete route      
 Route::delete('receptionists/{receptionist}', [ReceptionistController::class, 'destroy'])
     ->name('receptionists.destroy')
     ->middleware('auth');
@@ -130,7 +130,7 @@ Route::get('receptionists/{receptionist}', [ReceptionistController::class, 'show
 // Receptionist Profile route
 Route::get('receptionists/{receptionist}/profile', [ReceptionistController::class, 'profile'])
     ->name('receptionists.profile')
-    ->middleware('auth');              
+    ->middleware('auth');          
 
 // Receptionist Approval route
 Route::post('receptionists/{receptionist}/approve', [ReceptionistController::class, 'approve'])
@@ -170,15 +170,15 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
-                'users_count' => \App\Models\User::count(),
-                'rooms_count' => \App\Models\Room::count(),
+                    'users_count' => \App\Models\User::count(),
+'rooms_count' => \App\Models\Room::count(),
                 'floors_count' => \App\Models\Floor::count(),
-                'reservations_count' => \App\Models\Reservation::count(),
-                'receptionists_count' => \App\Models\Receptionist::count(),
+'reservations_count' => \App\Models\Reservation::count(),
+                                'receptionists_count' => \App\Models\Receptionist::count(),
             ],
             'receptionists' => \App\Models\Receptionist::with('user')->get()->map(function ($receptionist) {
                 return [
@@ -192,7 +192,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
                     ] : null
                 ];
             })
-        ]);
+                        ]);
     })->name('admin.dashboard');
 });
 
