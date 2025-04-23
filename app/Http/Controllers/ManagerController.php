@@ -116,4 +116,12 @@ class ManagerController extends Controller
         return redirect()->route('managers.index')->with('success', 'User deleted successfully.');
 
     }
+    public function dashboard()
+    {
+        $this->authorize('viewAny', Manager::class);
+
+        return Inertia::render('admin.dashboard');
+                    
+       
+    }
 }

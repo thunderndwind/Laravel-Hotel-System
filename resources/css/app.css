@@ -1,3 +1,6 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -86,4 +89,30 @@ h1 {
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/* Custom styles */
+.modal.show {
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.sidebar button {
+  width: 100%;
+  text-align: left;
+  padding: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.sidebar button.active {
+  background-color: #e9ecef;
+  border-radius: 4px;
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
 }

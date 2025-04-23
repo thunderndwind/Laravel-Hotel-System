@@ -17,6 +17,8 @@ class Receptionist extends Authenticatable
         'national_id',
         'avatar_image',
         'phone_number',
+       
+
 
     ];
     protected $hidden = [
@@ -25,7 +27,7 @@ class Receptionist extends Authenticatable
     //=========== Receptionist profile belongs to one user account ===========
     public function user()
     {
-        return $this->morphOne(User::class, 'profile');
+        return $this->morphOne(User::class, 'profile')->withTrashed();
     }
     //=========== Receptionist profile belongs to one manager account ===========
     public function manager()
