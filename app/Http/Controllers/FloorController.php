@@ -195,7 +195,6 @@ class FloorController extends Controller
     public function destroy(Floor $floor)
     {
         try {
-
             $this->authorize('delete', $floor);
 
             $floor->delete();
@@ -204,7 +203,13 @@ class FloorController extends Controller
                 ->route('floors.index')
                 ->with('success', 'Floor deleted successfully.');
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'An unexpected error occurred.');
         }
     }
 
