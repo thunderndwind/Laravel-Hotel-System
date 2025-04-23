@@ -13,7 +13,7 @@ class ReservationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('view reservations');
     }
 
     /**
@@ -21,7 +21,11 @@ class ReservationPolicy
      */
     public function view(User $user, Reservation $reservation): bool
     {
-        return false;
+        if ($user->hasRole('Client')) {
+            return $reservation->user_id === $user->id;
+        }
+
+        return $user->hasPermissionTo('view reservations');
     }
 
     /**
@@ -29,7 +33,7 @@ class ReservationPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('make reservation');
     }
 
     /**
@@ -37,15 +41,36 @@ class ReservationPolicy
      */
     public function update(User $user, Reservation $reservation): bool
     {
-        return false;
+        if ($user->hasRole('Client')) {
+            // Client can only update their upcoming reservations
+            return $reservation->user_id === $user->id && $reservation->status === 'upcoming';
+        }
+
+        return $user->hasPermissionTo('approve reservation');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Reservation $reservation): bool
+    public function delete(User $user, Reservation $reservation): Response
     {
-        return false;
+        if ($user->hasRole('Client')) {
+            if ($reservation->user_id !== $user->id) {
+                return Response::deny('You can only cancel your own reservations.');
+            }
+
+            if ($reservation->status !== 'upcoming') {
+                return Response::deny('You can only cancel upcoming reservations.');
+            }
+
+            return Response::allow();
+        }
+
+        if ($user->hasPermissionTo('approve reservation')) {
+            return Response::allow();
+        }
+
+        return Response::deny('You do not have permission to cancel this reservation.');
     }
 
     /**
@@ -53,7 +78,7 @@ class ReservationPolicy
      */
     public function restore(User $user, Reservation $reservation): bool
     {
-        return false;
+        return $user->hasPermissionTo('approve reservation');
     }
 
     /**
@@ -61,6 +86,6 @@ class ReservationPolicy
      */
     public function forceDelete(User $user, Reservation $reservation): bool
     {
-        return false;
+        return $user->hasRole('Admin');
     }
 }
