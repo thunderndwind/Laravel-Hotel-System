@@ -16,7 +16,7 @@ class ClientPolicy
     public function viewAny(User $user): bool
     {
         //return false;
-        return $user->hasAnyRole(['admin', 'manager', 'receptionist']);
+        return $user->hasRole(['Admin', 'Manager', 'Receptionist']);
     }
 
     /**
@@ -24,13 +24,13 @@ class ClientPolicy
      */
     public function view(User $user, Client $client): bool
     {
-        // Admin/manager can view any client
-        if ($user->hasAnyRole(['admin', 'manager'])) {
+        // Admin/Manager can view any client
+        if ($user->hasRole(['Admin', 'Manager'])) {
             return true;
         }
 
         // Receptionist can only view unapproved or their approved clients
-        if ($user->isReceptionist()) {
+        if ($user->hasRole(['Receptionist'])) {
             return !$client->approved_at ||
                 $client->approver_id === $user->profile->id;
         }
@@ -46,7 +46,7 @@ class ClientPolicy
     public function create(User $user): bool
     {
         // Only guests can register (no logged in user)
-        return $user === null;
+        return $user->hasRole(['Admin', 'Manager', 'Receptionist']) || $user === null;
     }
 
     /**
@@ -54,8 +54,8 @@ class ClientPolicy
      */
     public function update(User $user, Client $client): bool
     {
-        // Admin/manager can update any client
-        if ($user->hasAnyRole(['admin', 'manager'])) {
+        // Admin/Manager can update any client
+        if ($user->hasAnyRole(['Admin', 'Manager'])) {
             return true;
         }
 
@@ -69,7 +69,7 @@ class ClientPolicy
      */
     public function delete(User $user, Client $client): bool
     {
-        return $user->hasAnyRole(['admin', 'manager']);
+        return $user->hasAnyRole(['Admin', 'Manager']);
     }
 
     /**
@@ -77,9 +77,8 @@ class ClientPolicy
      */
     public function approve(User $user, Client $client)
     {
-        // Only manager/receptionist can approve
-        return $user->hasAnyRole(['manager', 'receptionist']) &&
-            !$client->approved_at;
+        // Only Manager/Receptionist']); can approve
+        return $user->hasAnyRole(['Manager', 'Receptionist']) && !$client->approved_at;
     }
 
 
@@ -88,13 +87,13 @@ class ClientPolicy
 
     public function viewReservations(User $user, Client $client)
     {
-        // Admin/manager can view any
-        if ($user->hasAnyRole(['admin', 'manager'])) {
+        // Admin/Manager can view any
+        if ($user->hasAnyRole(['Admin', 'Manager'])) {
             return true;
         }
 
-        // Receptionist can view their approved clients
-        if ($user->isReceptionist()) {
+        // Receptionist']); can view their approved clients
+        if ($user->hasAnyRole('Receptionist')) {
             return $client->approved_at &&
                 $client->approver_id === $user->profile->id;
         }
@@ -106,7 +105,7 @@ class ClientPolicy
 
     public function makeReservation(User $user)
     {
-        return $user->hasRole('client') && 
+        return $user->hasRole('Client') &&
             $user->profile->approved_at &&
             $user->hasVerifiedEmail();
     }
