@@ -16,6 +16,11 @@ const { selectedValue } = inject("select");
         <slot v-if="$slots.default">
             <slot />
         </slot>
+        <template v-else-if="selectedValue">
+            <slot name="selected">
+                {{ selectedValue }}
+            </slot>
+        </template>
         <template v-else>{{ placeholder }}</template>
     </span>
 </template>

@@ -22,10 +22,6 @@ import {
 import { toast } from "@/Components/ui/use-toast";
 
 const props = defineProps({
-    floor: {
-        type: Object,
-        required: true,
-    },
     managers: {
         type: Array,
         required: true,
@@ -35,14 +31,8 @@ const props = defineProps({
 const isSubmitting = ref(false);
 
 const form = useForm({
-    name: props.floor.name,
-    manager_id: props.floor.manager_id,
-});
-
-// Modify the currentManager computed property
-const currentManager = computed(() => {
-    const manager = props.managers.find((m) => m.id === form.manager_id);
-    return manager ? manager.name : "Select a manager";
+    name: "",
+    manager_id: "",
 });
 
 // Form validation
@@ -76,12 +66,13 @@ const submit = () => {
     }
 
     isSubmitting.value = true;
-    form.put(route("floors.update", props.floor.id), {
+    form.post(route("floors.store"), {
         onSuccess: () => {
             toast({
                 title: "Success",
-                description: "Floor updated successfully",
+                description: "Floor created successfully",
             });
+            form.reset();
             isSubmitting.value = false;
         },
         onError: () => {
@@ -94,59 +85,65 @@ const submit = () => {
         },
     });
 };
+
+// Add a computed property to find the selected manager
+const selectedManager = computed(() => {
+    return (
+        props.managers.find((manager) => manager.id === form.manager_id)
+            ?.name || "Select a manager"
+    );
+});
 </script>
 
 <template>
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Edit Floor
+                Create New Floor
             </h2>
         </template>
 
         <div class="py-12">
-            <div class="mx-auto max-w-2xl">
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Edit Floor Details</CardTitle>
+                        <CardTitle>Floor Information</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form @submit.prevent="submit" class="space-y-6">
                             <div class="space-y-2">
-                                <Label for="name">Floor Name</Label>
+                                <Label for="name">Name</Label>
                                 <Input
                                     id="name"
                                     v-model="form.name"
                                     type="text"
-                                    :disabled="form.processing || isSubmitting"
                                     :class="{
                                         'border-red-500': form.errors.name,
                                     }"
                                     placeholder="Enter floor name"
                                 />
-                                <span
+                                <div
                                     v-if="form.errors.name"
-                                    class="text-sm text-red-500"
+                                    class="mt-1 text-sm text-red-500"
                                 >
                                     {{ form.errors.name }}
-                                </span>
+                                </div>
                             </div>
 
                             <div class="space-y-2">
-                                <Label for="manager">Floor Manager</Label>
+                                <Label for="manager">Manager</Label>
                                 <Select v-model="form.manager_id">
                                     <SelectTrigger
-                                        :disabled="
-                                            form.processing || isSubmitting
-                                        "
                                         :class="{
                                             'border-red-500':
                                                 form.errors.manager_id,
                                         }"
                                         class="w-full"
                                     >
-                                        <SelectValue>
-                                            {{ currentManager }}
+                                        <SelectValue
+                                            placeholder="Select a manager"
+                                        >
+                                            {{ selectedManager }}
                                         </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent>
@@ -159,19 +156,18 @@ const submit = () => {
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <span
+                                <div
                                     v-if="form.errors.manager_id"
-                                    class="text-sm text-red-500"
+                                    class="mt-1 text-sm text-red-500"
                                 >
                                     {{ form.errors.manager_id }}
-                                </span>
+                                </div>
                             </div>
 
                             <div class="flex justify-end space-x-2">
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    :disabled="form.processing || isSubmitting"
                                     @click="
                                         $inertia.visit(route('floors.index'))
                                     "
@@ -180,9 +176,13 @@ const submit = () => {
                                 </Button>
                                 <Button
                                     type="submit"
-                                    :disabled="form.processing || isSubmitting"
+                                    :disabled="form.processing"
                                 >
-                                    Update Floor
+                                    {{
+                                        form.processing
+                                            ? "Creating..."
+                                            : "Create Floor"
+                                    }}
                                 </Button>
                             </div>
                         </form>
