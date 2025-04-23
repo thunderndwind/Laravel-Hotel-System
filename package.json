@@ -1,50 +1,40 @@
 {
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "build": "vite build",
-        "dev": "vite"
-    },
-    "devDependencies": {
-        "@inertiajs/vue3": "^2.0.8",
-        "@tailwindcss/forms": "^0.5.3",
-        "@tailwindcss/vite": "^4.0.0",
-        "@vitejs/plugin-vue": "^5.0.0",
-        "autoprefixer": "^10.4.12",
-        "axios": "^1.8.4",
-        "concurrently": "^9.0.1",
-        "laravel-vite-plugin": "^1.2.0",
-        "postcss": "^8.4.31",
-<<<<<<< HEAD
-        "sass": "^1.87.0",
-=======
->>>>>>> main
-        "sass-embedded": "^1.87.0",
-        "tailwindcss": "^3.2.1",
-        "vite": "^6.2.4",
-        "vue": "^3.4.0"
-    },
-    "dependencies": {
-<<<<<<< HEAD
-        "@fortawesome/fontawesome-free": "^6.7.2",
-        "@headlessui/vue": "^1.7.23",
-        "@heroicons/vue": "^2.2.0",
-        "@tanstack/vue-table": "^8.21.3",
-        "@toast-ui/editor": "^3.1.0",
-        "bootstrap": "^5.3.5",
-        "chart.js": "^4.4.9",
-=======
-        "@headlessui/vue": "^1.7.23",
-        "@heroicons/vue": "^2.2.0",
-        "@tanstack/vue-table": "^8.21.3",
-        "@toast-ui/editor": "^3.2.2",
->>>>>>> main
-        "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
-        "lucide-vue-next": "^0.503.0",
-        "reka-ui": "^2.2.0",
-        "shadcn-vue": "^2.1.0",
-        "tailwind-merge": "^3.2.0",
-        "tailwindcss-animate": "^1.0.7"
-    }
+        "private": true,
+        "type": "module",
+        "scripts": {
+                "build": "vite build",
+                "dev": "vite"
+        },
+        "devDependencies": {
+                "@inertiajs/vue3": "^2.0.8",
+                "@tailwindcss/forms": "^0.5.3",
+                "@tailwindcss/vite": "^4.0.0",
+                "@vitejs/plugin-vue": "^5.0.0",
+                "autoprefixer": "^10.4.12",
+                "axios": "^1.8.4",
+                "concurrently": "^9.0.1",
+                "laravel-vite-plugin": "^1.2.0",
+                "postcss": "^8.4.31",
+                "sass": "^1.87.0",
+                "sass-embedded": "^1.87.0",
+                "tailwindcss": "^3.2.1",
+                "vite": "^6.2.4",
+                "vue": "^3.4.0"
+        },
+        "dependencies": {
+                "@fortawesome/fontawesome-free": "^6.7.2",
+                "bootstrap": "^5.3.5",
+                "chart.js": "^4.4.9",
+                "@headlessui/vue": "^1.7.23",
+                "@heroicons/vue": "^2.2.0",
+                "@tanstack/vue-table": "^8.21.3",
+                "@toast-ui/editor": "^3.2.2",
+                "class-variance-authority": "^0.7.1",
+                "clsx": "^2.1.1",
+                "lucide-vue-next": "^0.503.0",
+                "reka-ui": "^2.2.0",
+                "shadcn-vue": "^2.1.0",
+                "tailwind-merge": "^3.2.0",
+                "tailwindcss-animate": "^1.0.7"
+        }
 }
