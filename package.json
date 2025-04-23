@@ -6,7 +6,7 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@inertiajs/vue3": "^2.0.0",
+        "@inertiajs/vue3": "^2.0.8",
         "@tailwindcss/forms": "^0.5.3",
         "@tailwindcss/vite": "^4.0.0",
         "@vitejs/plugin-vue": "^5.0.0",
@@ -21,6 +21,16 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "@toast-ui/editor": "^3.2.2"
+        "@headlessui/vue": "^1.7.23",
+        "@heroicons/vue": "^2.2.0",
+        "@tanstack/vue-table": "^8.21.3",
+        "@toast-ui/editor": "^3.2.2",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "lucide-vue-next": "^0.503.0",
+        "reka-ui": "^2.2.0",
+        "shadcn-vue": "^2.1.0",
+        "tailwind-merge": "^3.2.0",
+        "tailwindcss-animate": "^1.0.7"
     }
 }

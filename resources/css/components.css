@@ -1,0 +1,18 @@
+@layer components {
+    /* Switch specific styles */
+    .switch-root {
+        @apply relative inline-flex h-6 w-11 items-center rounded-full;
+    }
+
+    .switch-thumb {
+        @apply pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform;
+    }
+
+    .switch-thumb[data-state="checked"] {
+        @apply translate-x-5;
+    }
+
+    .switch-thumb[data-state="unchecked"] {
+        @apply translate-x-0;
+    }
+}
