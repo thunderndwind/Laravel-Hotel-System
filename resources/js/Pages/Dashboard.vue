@@ -39,25 +39,30 @@
       >
         Dashboard
       </router-link>
-
-      <div v-else>
-        <router-link
-          v-if="canLogin"
-          :to="route('login')"
-          class="rounded-md px-4 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20]"
-        >
-          Log in
-        </router-link>
-
-        <router-link
-          v-if="canRegister"
-          :to="route('register')"
-          class="rounded-md px-4 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20]"
-        >
-          Register
-        </router-link>
-      </div>
-        </div>
+    <Link
+  :href="route('logout')"
+  method="post"
+  as="button"
+  class="rounded-md px-4 py-2 text-white ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20]"
+>
+  Log out
+</Link>
+    
+      <router-link
+        v-if="canLogin"
+        :to="route('login')"
+        class="rounded-md px-4 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20]"
+      >
+        Log in
+      </router-link>
+      <router-link
+        v-else-if="canRegister"
+        :to="route('register')"
+        class="rounded-md px-4 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20]"
+      >
+        Register
+      </router-link>
+    </div>
       </nav>
     <hr class="border-t-5 border-[#cb8670]  mx-auto mb-4 w-1/4 mt-50">
       <!-- Background Images (Fixed) -->
@@ -202,85 +207,89 @@
   </template>
   
   <script>
-  export default {
-    data() {
-      return {
-        currentIndex: 0,
-        slides: [
-          {
-            image: '/statics/img2.jpeg',
-            alt: 'Luxury resort',
-            title: 'A Place to Remember',
-            description: 'Experience unparalleled luxury in our award-winning resort with world-class amenities.',
-            buttonText: 'Explore Resort'
-          },
-          {
-            image: '/statics/img4.jpg',
-            alt: 'Beach view',
-            title: 'Discover Your Escape',
-            description: 'Private beaches, crystal clear waters, and unforgettable sunsets await you.',
-            buttonText: 'View Packages'
-          },
-          {
-            image: '/statics/hotels.jpg',
-            alt: 'Spa relaxation',
-            title: 'Relax & Unwind',
-            description: 'Our world-class spa treatments will rejuvenate your mind, body and soul.',
-            buttonText: 'Book Treatment'
-          },
-          {
-            image: '/statics/img5.jpg',
-            alt: 'Luxury suite',
-            title: 'Exclusive Suites',
-            description: 'Indulge in our premium suites with breathtaking views and personalized service.',
-            buttonText: 'View Suites'
-          },
-          {
-            image: '/statics/img6.jpeg',
-            alt: 'Luxury dining',
-            title: 'Gourmet Experiences',
-            description: 'Savor exquisite culinary creations by our world-renowned chefs.',
-            buttonText: 'Discover Menus'
-          }
-        ],
-        interval: null,
-        scrollListener: null
-      }
-    },
-    methods: {
-  goToNextSlide() {
-    this.currentIndex = (this.currentIndex + 1) % this.slides.length;
-    // No resetAutoPlay here
-  },
-  goToPreviousSlide() {
-    this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
-    // No resetAutoPlay here
-  },
-  goToSlide(index) {
-    this.currentIndex = index;
-    // No resetAutoPlay here
-  },
-  startAutoPlay() {
-    this.interval = setInterval(() => {
-      this.goToNextSlide();
-    }, 5000);
-  },
-  resetAutoPlay() {
-    clearInterval(this.interval);
-    this.startAutoPlay();
-  },
-  handleScroll() {
-    const navbar = this.$refs.navbar;
-    if (window.scrollY > 50) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
-    }
-  }
-},
+import { Link } from '@inertiajs/vue3'
 
-  }
-  </script>
+export default {
+  components: {
+    Link
+  },
+  data() {
+    return {
+      currentIndex: 0,
+      slides: [
+        {
+          image: '/statics/img2.jpeg',
+          alt: 'Luxury resort',
+          title: 'A Place to Remember',
+          description: 'Experience unparalleled luxury in our award-winning resort with world-class amenities.',
+          buttonText: 'Explore Resort'
+        },
+        {
+          image: '/statics/img4.jpg',
+          alt: 'Beach view',
+          title: 'Discover Your Escape',
+          description: 'Private beaches, crystal clear waters, and unforgettable sunsets await you.',
+          buttonText: 'View Packages'
+        },
+        {
+          image: '/statics/hotels.jpg',
+          alt: 'Spa relaxation',
+          title: 'Relax & Unwind',
+          description: 'Our world-class spa treatments will rejuvenate your mind, body and soul.',
+          buttonText: 'Book Treatment'
+        },
+        {
+          image: '/statics/img5.jpg',
+          alt: 'Luxury suite',
+          title: 'Exclusive Suites',
+          description: 'Indulge in our premium suites with breathtaking views and personalized service.',
+          buttonText: 'View Suites'
+        },
+        {
+          image: '/statics/img6.jpeg',
+          alt: 'Luxury dining',
+          title: 'Gourmet Experiences',
+          description: 'Savor exquisite culinary creations by our world-renowned chefs.',
+          buttonText: 'Discover Menus'
+        }
+      ],
+      interval: null,
+      scrollListener: null
+    }
+  },
+  methods: {
+    goToNextSlide() {
+      this.currentIndex = (this.currentIndex + 1) % this.slides.length;
+      // No resetAutoPlay here
+    },
+    goToPreviousSlide() {
+      this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+      // No resetAutoPlay here
+    },
+    goToSlide(index) {
+      this.currentIndex = index;
+      // No resetAutoPlay here
+    },
+    startAutoPlay() {
+      this.interval = setInterval(() => {
+        this.goToNextSlide();
+      }, 5000);
+    },
+    resetAutoPlay() {
+      clearInterval(this.interval);
+      this.startAutoPlay();
+    },
+    handleScroll() {
+      const navbar = this.$refs.navbar;
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    }
+  },
+}
+</script>
   
   <style scoped>
   /* Fixed background image */

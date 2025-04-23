@@ -13,8 +13,7 @@ use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-
-
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -222,6 +221,10 @@ Route::middleware(['auth', 'role:manager|receptionist'])->group(function () {
         return Inertia::render('Staff/Dashboard');
     })->name('staff.dashboard');
 });
+
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout')
+    ->middleware('auth');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/managers.php';
