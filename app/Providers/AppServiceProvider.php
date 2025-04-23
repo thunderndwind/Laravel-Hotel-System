@@ -29,7 +29,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
-        Gate::policy(Floor::class, FloorPolicy::class);
+        // The policies are applied already if following the naming convension of laravel 
+        // Gate::policy(Floor::class, FloorPolicy::class);
         Route::aliasMiddleware('role', RoleMiddleware::class);
         Route::aliasMiddleware('permission', PermissionMiddleware::class);
     }
