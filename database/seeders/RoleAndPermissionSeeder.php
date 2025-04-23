@@ -43,6 +43,7 @@ class RoleAndPermissionSeeder extends Seeder
             'delete clients',
             'view rooms',
             'view reservations',
+
         ];
 
 
@@ -58,6 +59,11 @@ class RoleAndPermissionSeeder extends Seeder
             'create managers',
             'edit managers',
             'delete managers',
+            'view receptionists',
+            'create receptionists',
+            'edit receptionists',
+            'ban receptionists',
+            'unban receptionists',
             ...$receptionistPermissions
         ];
 
