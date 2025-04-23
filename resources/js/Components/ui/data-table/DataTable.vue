@@ -1,7 +1,9 @@
 <script setup>
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
 import PageSizeSelect from "./PageSizeSelect.vue";
 import SearchInput from "./SearchInput.vue";
+import { Button } from "@/Components/ui/button";
 
 const props = defineProps({
     columns: {
@@ -62,10 +64,25 @@ const handleSort = (sortKey) => {
 const handleSearch = (value) => {
     emit("update:search", value);
 };
+
+const handlePagination = (newPage) => {
+    emit("update:pagination", {
+        ...props.pagination,
+        current_page: newPage,
+    });
+};
+
+const handlePerPageChange = (newPerPage) => {
+    emit("update:pagination", {
+        ...props.pagination,
+        per_page: newPerPage,
+        current_page: 1, // Reset to first page when changing items per page
+    });
+};
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-4">
         <div class="flex items-center justify-between gap-4 pt-4">
             <SearchInput
                 :model-value="search"
@@ -156,44 +173,38 @@ const handleSearch = (value) => {
 
         <div class="flex items-center justify-between px-4 py-4">
             <div class="flex-1 text-sm text-muted-foreground">
-                {{ pagination.from }}-{{ pagination.to }} of
-                {{ pagination.total }} items
+                Showing {{ pagination.from || 0 }}-{{ pagination.to || 0 }} of
+                {{ pagination.total || 0 }} entries
             </div>
             <div class="flex items-center space-x-6 lg:space-x-8">
-                <div
-                    class="flex w-[100px] items-center justify-center text-sm font-medium"
-                >
-                    Page {{ pagination.current_page }} of
-                    {{ Math.ceil(pagination.total / pagination.per_page) }}
-                </div>
                 <div class="flex items-center space-x-2">
-                    <button
-                        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        :disabled="pagination.current_page === 1"
-                        @click="
-                            $emit('update:pagination', {
-                                ...pagination,
-                                current_page: pagination.current_page - 1,
-                            })
-                        "
+                    <Button
+                        :disabled="pagination.current_page <= 1"
+                        variant="outline"
+                        class="h-8 w-8 p-0"
+                        @click="handlePagination(pagination.current_page - 1)"
                     >
-                        Previous
-                    </button>
-                    <button
-                        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                        <span class="sr-only">Go to previous page</span>
+                        <ChevronLeftIcon class="h-4 w-4" />
+                    </Button>
+                    <div
+                        class="flex w-[100px] items-center justify-center text-sm"
+                    >
+                        Page {{ pagination.current_page }} of
+                        {{ Math.ceil(pagination.total / pagination.per_page) }}
+                    </div>
+                    <Button
                         :disabled="
                             pagination.current_page >=
                             Math.ceil(pagination.total / pagination.per_page)
                         "
-                        @click="
-                            $emit('update:pagination', {
-                                ...pagination,
-                                current_page: pagination.current_page + 1,
-                            })
-                        "
+                        variant="outline"
+                        class="h-8 w-8 p-0"
+                        @click="handlePagination(pagination.current_page + 1)"
                     >
-                        Next
-                    </button>
+                        <span class="sr-only">Go to next page</span>
+                        <ChevronRightIcon class="h-4 w-4" />
+                    </Button>
                 </div>
             </div>
         </div>

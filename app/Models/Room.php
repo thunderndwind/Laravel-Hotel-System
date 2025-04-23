@@ -38,7 +38,7 @@ class Room extends Model
 
     private static function generateRoomNumber(): int
     {
-        $lastNumber = self::withTrashed()->max('number') ?? 100;
+        $lastNumber = self::withTrashed()->max('number') ?? 1000;
         return $lastNumber + 1;
     }
 }

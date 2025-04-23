@@ -25,7 +25,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-$user = Auth::user();
+    $user = Auth::user();
 
     if (!$user) {
         return redirect()->route('login');
@@ -135,7 +135,7 @@ Route::get('receptionists/{receptionist}', [ReceptionistController::class, 'show
 // Receptionist Profile route
 Route::get('receptionists/{receptionist}/profile', [ReceptionistController::class, 'profile'])
     ->name('receptionists.profile')
-    ->middleware('auth');          
+    ->middleware('auth');
 
 // Receptionist Approval route
 Route::post('receptionists/{receptionist}/approve', [ReceptionistController::class, 'approve'])
@@ -171,7 +171,7 @@ Route::get('/test-client-reservations', [ReceptionistController::class, 'testCli
 Route::middleware(['auth'])->group(function () {
 
     Route::resource('floors', FloorController::class)->except(['show']);
-    Route::resource('rooms', RoomController::class);
+    Route::resource('rooms', RoomController::class)->except(['show']);
 });
 
 // Admin Routes
@@ -179,11 +179,11 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
-                    'users_count' => \App\Models\User::count(),
-'rooms_count' => \App\Models\Room::count(),
+                'users_count' => \App\Models\User::count(),
+                'rooms_count' => \App\Models\Room::count(),
                 'floors_count' => \App\Models\Floor::count(),
-'reservations_count' => \App\Models\Reservation::count(),
-                                'receptionists_count' => \App\Models\Receptionist::count(),
+                'reservations_count' => \App\Models\Reservation::count(),
+                'receptionists_count' => \App\Models\Receptionist::count(),
             ],
             'receptionists' => \App\Models\Receptionist::with('user')->get()->map(function ($receptionist) {
                 return [
@@ -197,7 +197,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
                     ] : null
                 ];
             })
-                        ]);
+        ]);
     })->name('admin.dashboard');
 });
 

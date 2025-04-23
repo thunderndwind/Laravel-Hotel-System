@@ -13,6 +13,8 @@ import {
     PencilIcon,
     TrashIcon,
     ArrowPathIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
 } from "@heroicons/vue/24/outline";
 
 const props = defineProps({
@@ -153,9 +155,90 @@ const pagination = ref({
     total: props.rooms.total,
     from: props.rooms.from,
     to: props.rooms.to,
+    last_page: props.rooms.last_page,
 });
 
-// ... rest of the component methods (handleSort, destroy, restore) ...
+const handleSort = (column) => {
+    const direction = sortBy.value === column ? `-${column}` : column;
+    sortBy.value = direction;
+
+    isLoading.value = true;
+    router.get(
+        route("rooms.index"),
+        {
+            sort: direction,
+            page: pagination.value.current_page,
+            per_page: pagination.value.per_page,
+            ...(search.value ? { search: search.value } : {}),
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                isLoading.value = false;
+            },
+        },
+    );
+};
+
+const handlePaginationChange = (newPagination) => {
+    if (isLoading.value) return;
+
+    isLoading.value = true;
+    router.get(
+        route("rooms.index"),
+        {
+            page: newPagination.current_page,
+            per_page: newPagination.per_page,
+            sort: sortBy.value,
+            ...(search.value ? { search: search.value } : {}),
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                isLoading.value = false;
+                pagination.value = {
+                    ...pagination.value,
+                    current_page: props.rooms.current_page,
+                    per_page: props.rooms.per_page,
+                    total: props.rooms.total,
+                    from: props.rooms.from,
+                    to: props.rooms.to,
+                    last_page: props.rooms.last_page,
+                };
+            },
+        },
+    );
+};
+
+const destroy = (room) => {
+    if (confirm(`Are you sure you want to delete room ${room.number}?`)) {
+        router.delete(route("rooms.destroy", room.id), {
+            onSuccess: () => {
+                toast({
+                    title: "Success",
+                    description: "Room deleted successfully",
+                });
+            },
+        });
+    }
+};
+
+const restore = (room) => {
+    router.put(
+        route("rooms.restore", room.id),
+        {},
+        {
+            onSuccess: () => {
+                toast({
+                    title: "Success",
+                    description: "Room restored successfully",
+                });
+            },
+        },
+    );
+};
 </script>
 
 <template>
@@ -187,6 +270,7 @@ const pagination = ref({
                             :is-loading="isLoading"
                             :search="search"
                             :sort-by="sortBy"
+                            :page-sizes="[10, 25, 50, 100]"
                             @sort="handleSort"
                             @update:pagination="handlePaginationChange"
                             @update:search="handleSearch"
