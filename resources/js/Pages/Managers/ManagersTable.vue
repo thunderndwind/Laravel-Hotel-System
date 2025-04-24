@@ -1,5 +1,7 @@
 <script setup lang="ts" generic="TData, TValue">
 import type { ColumnDef } from '@tanstack/vue-table'
+
+
 import {
   Table,
   TableBody,
@@ -12,9 +14,12 @@ import {
 import {
   FlexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { defineProps } from 'vue';
+import { defineProps, watchEffect } from 'vue';
+import Button from '@/Components/ui/button/Button.vue';
+
 
 const props = defineProps<{
   columns: ColumnDef<any, any>[]
@@ -27,16 +32,39 @@ const table = useVueTable({
   get data() { return props.data },
   get columns() { return props.columns },
   getCoreRowModel: getCoreRowModel(),
+  getPaginationRowModel: getPaginationRowModel(),
+
+  state: {
+    pagination: {
+      pageIndex: 0,
+      pageSize: 5, // or whatever number of rows per page you want
+    }
+  },
+  onPaginationChange: (updater) => {
+    const newPagination = typeof updater === 'function' ? updater(table.getState().pagination) : updater
+    table.setOptions((prev) => ({
+      ...prev,
+      state: {
+        ...prev.state,
+        pagination: newPagination,
+      },
+    }));
+  },
+  manualPagination: false,
+  debugTable: true,
+
 })
 
-// console.log('Table object:', table);
-// console.log('Header Groupssssss:', table.getHeaderGroups());
-// console.log('Rows:', table.getRowModel?.().rows);
+watchEffect(() => {
+  console.log('Pagination State:', table.getState().pagination)
+})
+console.log('nexxxxxtttttttttt:',table.getCanNextPage());
 
 </script>
 
 <template>
-  <div class="border rounded-md">
+  <div>
+    <div class="border rounded-md">
     <Table>
       <TableHeader>
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
@@ -51,7 +79,7 @@ const table = useVueTable({
       <TableBody>
         <template v-if="table.getRowModel() && table.getRowModel().rows && table.getRowModel().rows.length">
           <TableRow
-            v-for="row in table.getRowModel().rows" :key="row.id"
+            v-for="row in table.getPaginationRowModel().rows" :key="row.id"
             :data-state="row.getIsSelected() ? 'selected' : undefined"
           >
             <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
@@ -68,5 +96,26 @@ const table = useVueTable({
         </template>
       </TableBody>
     </Table>
+    </div>
+    <div class="flex items-center justify-end py-4 space-x-2">
+      <Button
+        variant="outline"
+        size="sm"
+        :disabled="!table.getCanPreviousPage()"
+        @click="table.previousPage()"
+      >
+        Previous
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        :disabled="!table.getCanNextPage()"
+        @click="table.nextPage()"
+      >
+        Next
+      </Button>
+    </div>
+
   </div>
+  
 </template>
