@@ -86,14 +86,18 @@ const columns = computed(() => [
         sortable: true,
         sortKey: "floor_name",
     },
-    {
-        id: "manager",
-        header: "Manager",
-        accessorKey: "manager",
-        cell: ({ row }) => row.original.manager,
-        sortable: true,
-        sortKey: "manager_name",
-    },
+    ...(props.isAdmin
+        ? [
+              {
+                  id: "manager",
+                  header: "Manager",
+                  accessorKey: "manager",
+                  cell: ({ row }) => row.original.manager,
+                  sortable: true,
+                  sortKey: "manager_name",
+              },
+          ]
+        : []),
     {
         id: "actions",
         header: "Actions",

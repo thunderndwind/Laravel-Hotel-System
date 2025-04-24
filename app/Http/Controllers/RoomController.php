@@ -85,10 +85,8 @@ class RoomController extends Controller
                             ->orWhere('users.name', 'like', $search)
                             ->orWhere('floors.name', 'like', $search);
                     });
-                })
-                ->when($userRoleData['is_manager'], function ($query) use ($user) {
-                    $query->where('rooms.manager_id', $user->id);
                 });
+
 
             return $query->paginate($perPage)
                 ->through(function ($room) use ($userRoleData, $user) {
@@ -100,11 +98,11 @@ class RoomController extends Controller
                         'number' => $room->number,
                         'price' => $room->price,
                         'capacity' => $room->capacity,
-                        'manager' => $room->manager_name ?? 'None',
+                        'manager' => $userRoleData['is_admin'] ? ($floor->manager_name ?? 'None') : null,
                         'floor' => $room->floor_name ?? 'None',
                         'created_at' => $room->created_at->format('Y-m-d H:i'),
                         'can_edit' => $hasAccess,
-                        'can_delete' => $userRoleData['is_admin'],
+                        'can_delete' => $hasAccess,
                         'show_actions' => $hasAccess,
                         'deleted_at' => $room->deleted_at,
                         'can_restore' => $room->deleted_at && $userRoleData['is_admin']

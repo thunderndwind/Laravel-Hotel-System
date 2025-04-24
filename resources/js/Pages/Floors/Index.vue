@@ -126,7 +126,7 @@ const columns = computed(() => [
                   accessorKey: "manager",
                   cell: ({ row }) => row.original.manager,
                   sortable: true,
-                  sortKey: "manager_name", // This matches the backend sort key
+                  sortKey: "manager_name",
               },
           ]
         : []),

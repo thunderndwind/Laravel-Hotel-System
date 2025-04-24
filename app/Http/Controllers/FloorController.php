@@ -77,14 +77,10 @@ class FloorController extends Controller
                             ->orWhere('floors.number', 'like', $search)
                             ->orWhere('users.name', 'like', $search);
                     });
-                })
-                ->when($userRoleData['is_manager'], function ($query) use ($user) {
-                    $query->where('floors.manager_id', $user->id);
                 });
 
             return $query->paginate($perPage)
                 ->through(function ($floor) use ($userRoleData, $user) {
-                    // Calculate common permission checks once
                     $isManagerOwner = $userRoleData['is_manager'] && $floor->manager_id === $user->id;
                     $hasAccess = $userRoleData['is_admin'] || $isManagerOwner;
 
@@ -95,7 +91,7 @@ class FloorController extends Controller
                         'manager' => $userRoleData['is_admin'] ? ($floor->manager_name ?? 'None') : null,
                         'created_at' => $floor->created_at->format('Y-m-d H:i'),
                         'can_edit' => $hasAccess,
-                        'can_delete' => $userRoleData['is_admin'],
+                        'can_delete' => $hasAccess,
                         'show_actions' => $hasAccess,
                         'deleted_at' => $floor->deleted_at,
                         'can_restore' => $floor->deleted_at && $userRoleData['is_admin']
@@ -108,7 +104,7 @@ class FloorController extends Controller
             'isAdmin' => $userRoleData['is_admin'],
             'filters' => ['search' => $search, 'sort' => $sort],
             'can' => [
-                'create_floors' => $userRoleData['is_admin'],
+                'create_floors' => $userRoleData['is_manager'] || $userRoleData['is_admin'],
                 'restore_floors' => $userRoleData['is_admin']
             ],
         ]);

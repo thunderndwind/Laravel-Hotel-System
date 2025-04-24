@@ -33,6 +33,7 @@ class Room extends Model
 
         static::creating(function ($room) {
             $room->number = self::generateRoomNumber();
+            $room->price = $room->price ? $room->price * 100 : 0;
         });
     }
 
