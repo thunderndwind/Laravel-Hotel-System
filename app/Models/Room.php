@@ -42,4 +42,9 @@ class Room extends Model
         $lastNumber = self::withTrashed()->max('number') ?? 1000;
         return $lastNumber + 1;
     }
+
+    public function getPriceInDollarsAttribute()
+    {
+        return number_format($this->price / 100, 2);
+    }
 }

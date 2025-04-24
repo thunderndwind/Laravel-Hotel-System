@@ -96,7 +96,7 @@ class RoomController extends Controller
                     return [
                         'id' => $room->id,
                         'number' => $room->number,
-                        'price' => $room->price,
+                        'price' => $room->getPriceInDollarsAttribute(),
                         'capacity' => $room->capacity,
                         'manager' => $userRoleData['is_admin'] ? ($floor->manager_name ?? 'None') : null,
                         'floor' => $room->floor_name ?? 'None',
@@ -150,7 +150,7 @@ class RoomController extends Controller
             'room' => [
                 'id' => $room->id,
                 'number' => $room->number,
-                'price' => $room->price,
+                'price' => $room->getPriceInDollarsAttribute(),
                 'capacity' => $room->capacity,
                 'manager_id' => $room->manager_id,
                 'floor_id' => $room->floor_id,
