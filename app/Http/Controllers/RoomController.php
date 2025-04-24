@@ -115,7 +115,7 @@ class RoomController extends Controller
             'isAdmin' => $userRoleData['is_admin'],
             'filters' => ['search' => $search, 'sort' => $sort],
             'can' => [
-                'create_rooms' => $userRoleData['is_admin'],
+                'create_rooms' => $userRoleData['is_manager'] || $userRoleData['is_admin'],
                 'restore_rooms' => $userRoleData['is_admin']
             ],
         ]);
