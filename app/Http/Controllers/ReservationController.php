@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
+use Illuminate\Http\Request;
 
 
 
@@ -221,30 +221,76 @@ class ReservationController extends Controller
 
 
     /**
- * Show available rooms for reservation
- */
-public function availableRooms()
-{
-    $this->authorize('create', Reservation::class);
+     * Show available rooms for reservation
+     */
+    public function availableRooms()
+    {
+        $this->authorize('create', Reservation::class);
 
-    $availableRooms = Room::whereDoesntHave('reservations', function($query) {
-        $query->where('check_out_date', '>', now());
-    })
-    ->with('floor')
-    ->orderBy('number')
-    ->get()
-    ->map(function($room) {
-        return [
-            'id' => $room->id,
-            'number' => $room->number,
-            'floor_name' => $room->floor->name ?? 'Floor '.$room->floor->number,
-            'capacity' => $room->capacity,
-            'price' => $room->price,
-        ];
-    });
+        $availableRooms = Room::whereDoesntHave('reservations', function ($query) {
+            $query->where('check_out_date', '>', now());
+        })
+            ->with('floor')
+            ->orderBy('number')
+            ->get()
+            ->map(function ($room) {
+                return [
+                    'id' => $room->id,
+                    'number' => $room->number,
+                    'floor_name' => $room->floor->name ?? 'Floor ' . $room->floor->number,
+                    'capacity' => $room->capacity,
+                    'price' => $room->price,
+                ];
+            });
 
-    return Inertia::render('Clients/MakeReservation', [
-        'availableRooms' => $availableRooms,
-    ]);
-}
+        return Inertia::render('Clients/MakeReservation', [
+            'availableRooms' => $availableRooms,
+        ]);
+    }
+
+
+    //=================
+
+    public function reserveForm(Room $room)
+    {
+        return Inertia::render('Clients/ReserveRoomForm', [
+            'room' => [
+                'id' => $room->id,
+                'number' => $room->number,
+                'price' => $room->price,
+                'capacity' => $room->capacity,
+                'floor' => $room->floor->name ?? 'Floor ' . $room->floor->number,
+            ],
+        ]);
+    }
+
+
+
+
+    public function reserveStore(Request $request, Room $room)
+    {
+        $request->validate([
+            'accompany_number' => 'required|integer|min:0',
+            'check_in_date' => 'required|date|after_or_equal:today',
+            'check_out_date' => 'required|date|after:check_in_date',
+        ]);
+
+        if ($request->accompany_number + 1 > $room->capacity) {
+            return back()->withErrors(['accompany_number' => 'Total guests exceed room capacity.']);
+        }
+
+        $nights = Carbon::parse($request->check_in_date)->diffInDays(Carbon::parse($request->check_out_date));
+        $paid_price = $room->price * $nights;
+
+        Reservation::create([
+            'user_id' => Auth::id(),
+            'room_id' => $room->id,
+            'accompany_number' => $request->accompany_number,
+            'check_in_date' => $request->check_in_date,
+            'check_out_date' => $request->check_out_date,
+            'paid_price' => $paid_price,
+        ]);
+
+        return redirect()->route('reservations.index')->with('success', 'Reservation created!');
+    }
 }

@@ -94,6 +94,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
+
+
+
 // Reservation routes
 Route::prefix('reservations')->name('reservations.')->group(function () {
     Route::get('/', [App\Http\Controllers\Api\ReservationController::class, 'index'])->name('index');
@@ -102,6 +105,9 @@ Route::prefix('reservations')->name('reservations.')->group(function () {
     Route::put('/{id}', [App\Http\Controllers\Api\ReservationController::class, 'update'])->name('update');
     Route::delete('/{id}', [App\Http\Controllers\Api\ReservationController::class, 'cancel'])->name('cancel');
     Route::post('/check-availability', [App\Http\Controllers\Api\ReservationController::class, 'checkAvailability'])->name('check-availability');
+    //-----
+    Route::get('/reservations/rooms/{room}', [ReservationController::class, 'reserveForm'])->name('reservations.reserve.form');
+    Route::post('/reservations/rooms/{room}', [ReservationController::class, 'reserveStore'])->name('reservations.reserve.store');
 });
 
 
