@@ -32,7 +32,7 @@ class ManagerPolicy
 
     public function delete(User $user, Manager $manager): Response
     {
-        return ( $user->hasRole('Admin') || ($user->hasRole('Manager') && $user->profile_type === Manager::class && $user->profile_id === $manager->id ) )
+        return ($user->hasRole('Admin') || ($user->hasRole('Manager') && $user->profile_type === Manager::class && $user->profile_id === $manager->id))
             ? Response::allow()
             : Response::deny('You are not allowed to delete this manager.');
     }
@@ -45,5 +45,10 @@ class ManagerPolicy
     public function forceDelete(User $user, Manager $manager): bool
     {
         return false;
+    }
+
+    public function showDashboard(User $user): bool
+    {
+        return $user->hasRole('Manager');
     }
 }

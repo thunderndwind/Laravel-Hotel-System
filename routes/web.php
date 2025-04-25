@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Models\Client;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -35,9 +36,9 @@ Route::get('/dashboard', function () {
     // Check roles and redirect accordingly
     if ($user->hasRole('Admin')) {
         return redirect()->route('admin.dashboard');
-    } elseif ($user->hasRole('Managr')) {
+    } elseif ($user->hasRole('Manager')) { // Fixed typo 'Managr'
         return redirect()->route('manager.dashboard');
-    } elseif ($user->hasRole('Recetionist')) {
+    } elseif ($user->hasRole('Receptionist')) { // Fixed typo 'Recetionist'
         return redirect()->route('receptionist.dashboard');
     } elseif ($user->hasRole('Client')) {
         return redirect()->route('client.dashboard');
@@ -56,7 +57,7 @@ Route::get('/register', [RegisteredUserController::class, 'create'])
     ->name('register');
 
 
-Route::middleware(['role:manager'])->group(function () {
+Route::middleware(['role:Manager'])->group(function () {
 
     Route::get('/stripe', [StripeController::class, 'show'])->name('stripe.show');
 });
@@ -64,7 +65,7 @@ Route::middleware(['role:manager'])->group(function () {
 ///===================================================== Client Routes =========================================================
 
 Route::get('/client-dashboard', [ClientController::class, 'dashboard'])
-    ->middleware(['auth', 'role:manager', 'role:client'])
+    ->middleware(['auth', 'role:Client'])
     ->name('client.dashboard');
 
 Route::resource('clients', ClientController::class)
@@ -114,7 +115,7 @@ Route::prefix('reservations')->name('reservations.')->group(function () {
 
 //=============================================================================
 //======================== Receptionist Routes ==========================
-Route::middleware(['role:receptionist'])->group(function () {
+Route::middleware(['role:Receptionist'])->group(function () {
     Route::get('/receptionist', [ReceptionistController::class, 'index'])->name('receptionist.index');
     Route::get('/receptionist/clients', [ReceptionistController::class, 'clients'])->name('receptionist.clients');
     Route::get('/receptionist/reservations', [ReceptionistController::class, 'reservations'])->name('receptionist.reservations');
@@ -218,26 +219,24 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 });
 
 // Manager Routes
-Route::middleware(['auth', 'role:manager'])->group(function () {
+Route::middleware(['auth', 'role:Manager'])->group(function () {
     Route::get('/manager/dashboard', [ManagerController::class, 'dashboard'])
         ->name('manager.dashboard');
 });
 
 // Receptionist Routes
-Route::middleware(['auth', 'role:receptionist'])->group(function () {
+Route::middleware(['auth', 'role:Receptionist'])->group(function () {
     Route::get('/receptionist/dashboard', [ReceptionistController::class, 'dashboard'])
         ->name('receptionist.dashboard');
 });
 
 // Client Routes
-Route::middleware(['auth', 'role:client'])->group(function () {
-    Route::get('/client/dashboard', function () {
-        return Inertia::render('Client/Dashboard');
-    })->name('client.dashboard');
+Route::middleware(['auth', 'role:Client'])->group(function () {
+    Route::get('/client/dashboard', [ClientController::class, 'dashboard'])->name('client.dashboard');
 });
 
 // Staff Routes (shared between manager and receptionist)
-Route::middleware(['auth', 'role:manager|receptionist'])->group(function () {
+Route::middleware(['auth', 'role:Manager|Receptionist'])->group(function () {
     Route::get('/staff/dashboard', function () {
         return Inertia::render('Staff/Dashboard');
     })->name('staff.dashboard');

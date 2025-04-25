@@ -42,7 +42,7 @@ class RoomController extends Controller
             'search' => $search,
             'sort' => $sort,
             'user' => $user->id,
-            'admin' => $userRoleData['is_admin']
+            'admin' => $userRoleData['is_admin'] ?? false,
         ]));
 
         $rooms = cache()->remember($cacheKey, 60, function () use ($user, $perPage, $search, $sort, $userRoleData) {
@@ -87,36 +87,37 @@ class RoomController extends Controller
                     });
                 });
 
-
             return $query->paginate($perPage)
                 ->through(function ($room) use ($userRoleData, $user) {
-                    $isManagerOwner = $userRoleData['is_manager'] && $room->manager_id === $user->id;
-                    $hasAccess = $userRoleData['is_admin'] || $isManagerOwner;
+                    $isManager = $userRoleData['is_manager'] ?? false;
+                    $isAdmin = $userRoleData['is_admin'] ?? false;
+                    $isManagerOwner = $isManager && $room->manager_id === $user->id;
+                    $hasAccess = $isAdmin || $isManagerOwner;
 
                     return [
                         'id' => $room->id,
                         'number' => $room->number,
                         'price' => $room->getPriceInDollarsAttribute(),
                         'capacity' => $room->capacity,
-                        'manager' => $userRoleData['is_admin'] ? ($floor->manager_name ?? 'None') : null,
+                        'manager' => $isAdmin ? ($room->manager_name ?? 'None') : null,
                         'floor' => $room->floor_name ?? 'None',
                         'created_at' => $room->created_at->format('Y-m-d H:i'),
                         'can_edit' => $hasAccess,
                         'can_delete' => $hasAccess,
                         'show_actions' => $hasAccess,
                         'deleted_at' => $room->deleted_at,
-                        'can_restore' => $room->deleted_at && $userRoleData['is_admin']
+                        'can_restore' => $room->deleted_at && $isAdmin
                     ];
                 });
         });
 
         return Inertia::render('Rooms/Index', [
             'rooms' => $rooms,
-            'isAdmin' => $userRoleData['is_admin'],
+            'isAdmin' => $userRoleData['is_admin'] ?? false,
             'filters' => ['search' => $search, 'sort' => $sort],
             'can' => [
-                'create_rooms' => $userRoleData['is_manager'] || $userRoleData['is_admin'],
-                'restore_rooms' => $userRoleData['is_admin']
+                'create_rooms' => ($userRoleData['is_manager'] ?? false) || ($userRoleData['is_admin'] ?? false),
+                'restore_rooms' => $userRoleData['is_admin'] ?? false
             ],
         ]);
     }

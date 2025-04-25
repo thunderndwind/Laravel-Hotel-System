@@ -130,8 +130,8 @@ class ManagerController extends Controller
     {
         $this->authorize('view', $manager);
 
-        $avatarPath = $manager->avatar_image 
-            ? '/storage/' . $manager->avatar_image 
+        $avatarPath = $manager->avatar_image
+            ? '/storage/' . $manager->avatar_image
             : '/storage/avatars/Default.png';
 
         return Inertia::render('Managers/Show', [
@@ -155,8 +155,8 @@ class ManagerController extends Controller
     {
         $this->authorize('update', $manager);
 
-        $avatarPath = $manager->avatar_image 
-            ? '/storage/' . $manager->avatar_image 
+        $avatarPath = $manager->avatar_image
+            ? '/storage/' . $manager->avatar_image
             : '/storage/avatars/Default.png';
 
         return Inertia::render('Managers/Edit', [
@@ -213,10 +213,8 @@ class ManagerController extends Controller
     }
     public function dashboard()
     {
-        $this->authorize('viewAny', Manager::class);
+        $this->authorize('showDashboard', Manager::class);
 
-        return Inertia::render('admin.dashboard');
-
-
+        return Inertia::render('Managers/Dashboard');
     }
 }
