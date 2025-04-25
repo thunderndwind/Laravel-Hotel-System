@@ -37,10 +37,12 @@ class ClientController extends Controller
             $clients = Client::with(['user', 'approver'])->paginate(10);
         }
         // Receptionist sees only unapproved clients
-        elseif ($user->hasRole('receptionist')) {
+        elseif ($user->hasRole('Receptionist')) {
             $clients = Client::whereNull('approved_at')
                 ->with('user')
                 ->paginate(10);
+        } else {
+            $clients = Client::whereNull('id');
         }
 
         // return view('clients.index', compact('clients'));
@@ -48,7 +50,7 @@ class ClientController extends Controller
             'clients' => $clients,
             'can' => [
                 'create' => $user->can('create', Client::class),
-                'approve' => $user->can('approve', Client::class),
+                'approve' => $user->can('approveAny', Client::class),
             ]
         ]);
     }

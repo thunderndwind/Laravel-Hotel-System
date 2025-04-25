@@ -75,10 +75,14 @@ class ClientPolicy
     /**
      * Determine whether the user can approve the client.
      */
+    public function approveAny(User $user)
+    {
+        return $user->hasAnyRole(['Manager', 'Receptionist']);
+    }
+
     public function approve(User $user, Client $client)
     {
-        // Only Manager/Receptionist']); can approve
-        return $user->hasAnyRole(['Manager', 'Receptionist']) && !$client->approved_at;
+        return $this->approveAny($user) && !$client->approved_at;
     }
 
 

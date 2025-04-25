@@ -87,13 +87,13 @@ const navigationItems = computed(() => {
         items.push(
             {
                 name: "Pending Clients",
-                route: route("receptionist.pending-clients"),
+                route: route("receptionist.pendingClients"),
                 icon: UserIcon,
                 roles: ["Receptionist"],
             },
             {
                 name: "Approved Clients",
-                route: route("receptionist.approved-clients"),
+                route: route("receptionist.approvedClients"),
                 icon: UserGroupIcon,
                 roles: ["Receptionist"],
             },
