@@ -1,6 +1,6 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -35,8 +35,11 @@ const validateForm = () => {
     if (!form.national_id || form.national_id.trim() === "") {
         form.errors.national_id = "National ID is required";
         isValid = false;
-    } else if (form.national_id.length !== 9) {
-        form.errors.national_id = "National ID must be exactly 9 digits";
+    } else if (form.national_id.length < 15) {
+        form.errors.national_id = "National ID must be at least 15 characters";
+        isValid = false;
+    } else if (form.national_id.length > 25) {
+        form.errors.national_id = "National ID must not exceed 25 characters";
         isValid = false;
     }
 
@@ -60,7 +63,6 @@ function handleFileChange(event) {
     const file = event.target.files[0];
     if (file) {
         if (file.size > 2 * 1024 * 1024) {
-            // 2MB
             form.errors.avatar_image = "Image size must not exceed 2MB";
             event.target.value = "";
             return;
@@ -68,6 +70,12 @@ function handleFileChange(event) {
         form.avatar_image = file;
     }
 }
+
+const resetForm = () => {
+    form.reset();
+    const fileInput = document.getElementById("avatar_image");
+    if (fileInput) fileInput.value = "";
+};
 
 const submit = () => {
     if (!validateForm()) {
@@ -86,7 +94,7 @@ const submit = () => {
                 title: "Success",
                 description: "Manager created successfully",
             });
-            form.reset();
+            resetForm(); 
             isSubmitting.value = false;
         },
         onError: () => {
@@ -99,6 +107,10 @@ const submit = () => {
         },
     });
 };
+
+onMounted(() => {
+    resetForm();
+});
 </script>
 
 <template>
@@ -165,7 +177,7 @@ const submit = () => {
                                         'border-red-500':
                                             form.errors.national_id,
                                     }"
-                                    placeholder="Enter 9-digit national ID"
+                                    placeholder="Enter national ID"
                                 />
                                 <div
                                     v-if="form.errors.national_id"
@@ -239,7 +251,12 @@ const submit = () => {
                                     type="button"
                                     variant="outline"
                                     @click="
-                                        $inertia.visit(route('managers.index'))
+                                        () => {
+                                            resetForm();
+                                            $inertia.visit(
+                                                route('managers.index'),
+                                            );
+                                        }
                                     "
                                 >
                                     Cancel

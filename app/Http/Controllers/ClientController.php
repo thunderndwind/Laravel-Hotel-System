@@ -14,7 +14,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Inertia\Inertia;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 
 class ClientController extends Controller
@@ -28,15 +29,15 @@ class ClientController extends Controller
         $user = $request->user();
 
         // Admin sees all clients
-        if ($user->isAdmin()) {
+        if ($user->hasRole('Admin')) {     //$user->hasRole('Admin'),
             $clients = Client::with(['user', 'approver'])->paginate(10);
         }
         // Manager sees all clients
-        elseif ($user->isManager()) {
+        elseif ($user->hasRole('Manager')) {
             $clients = Client::with(['user', 'approver'])->paginate(10);
         }
         // Receptionist sees only unapproved clients
-        elseif ($user->isReceptionist()) {
+        elseif ($user->hasRole('receptionist')) {
             $clients = Client::whereNull('approved_at')
                 ->with('user')
                 ->paginate(10);
@@ -79,42 +80,44 @@ class ClientController extends Controller
             'avatar_image' => 'nullable|image|mimes:jpeg,jpg|max:2048',
         ]);
 
-        // Handle avatar upload
-        $avatarPath = null;
-        if ($request->hasFile('avatar_image')) {
-            $avatarPath = $request->file('avatar_image')->store('avatars', 'public');
+        try {
+            DB::beginTransaction();
+
+            $avatarImagePath = $request->file('avatar_image')->store('avatars', 'public');
+
+            $client = new Client([
+                'avatar_image' => $avatarImagePath,
+                'phone_number' => $request->phone_number,
+                'gender' => $request->gender,
+                'country' => $request->country,
+            ]);
+            $client->save();
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'profile_type' => Client::class,
+                'profile_id' => $client->id,
+            ]);
+            $user->save();
+
+            $user->assignRole('client'); // Assign the 'client' role to the user
+
+            $user->profile()->associate($client)->save();
+
+            DB::commit();
+
+            return redirect()->route('login')->with('success', 'Registration successful! Please wait for approval.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Delete uploaded file if transaction fails
+            if (isset($avatarPath)) {
+                Storage::disk('public')->delete($avatarPath);
+            }
+
+            return back()->withInput()->with('error', 'Registration failed. Please try again.');
         }
-
-
-        // Create client profile
-        $client = Client::create([
-            'phone_number' => $validated['phone_number'],
-            'gender' => $validated['gender'],
-            'country' => $validated['country'],
-            'avatar_image' => $avatarPath,
-        ]);
-
-        // Save the client profile to the database
-        $client->save();
-
-        $user = new User([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-            'profile_type' => Client::class,
-            'profile_id' => $client->id,
-        ]);
-
-
-
-
-        // Attach client profile to user
-        $user->profile()->associate($client)->save();
-
-        // Assign client role
-        $user->assignRole('client');
-
-        return redirect()->route('login')->with('success', 'Registration successful! Please wait for approval.');
     }
 
     //===== Display the specified client ==============
@@ -167,31 +170,50 @@ class ClientController extends Controller
             'avatar_image' => 'nullable|image|mimes:jpeg,jpg|max:2048',
         ]);
 
-        // Handle avatar upload
-        if ($request->hasFile('avatar_image')) {
-            // Delete old avatar if exists
-            if ($client->avatar_image) {
-                Storage::disk('public')->delete($client->avatar_image);
+        try {
+            DB::beginTransaction();
+
+            $oldAvatarPath = $client->avatar_image;
+            $newAvatarPath = $oldAvatarPath;
+
+            // Handle avatar upload
+            if ($request->hasFile('avatar_image')) {
+                $newAvatarPath = $request->file('avatar_image')->store('avatars', 'public');
             }
-            $avatarPath = $request->file('avatar_image')->store('avatars', 'public');
-            $client->avatar_image = $avatarPath;
+
+            // Update user
+            $client->user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ]);
+
+            // Update client
+            $client->update([
+                'phone_number' => $validated['phone_number'],
+                'gender' => $validated['gender'],
+                'country' => $validated['country'],
+                'avatar_image' => $newAvatarPath,
+            ]);
+
+            DB::commit();
+
+            // Delete old avatar after successful update
+            if ($request->hasFile('avatar_image') && $oldAvatarPath) {
+                Storage::disk('public')->delete($oldAvatarPath);
+            }
+
+            return redirect()->route('clients.show', $client)
+                ->with('success', 'Client updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Delete new uploaded file if transaction fails
+            if (isset($newAvatarPath)) {
+                Storage::disk('public')->delete($newAvatarPath);
+            }
+
+            return back()->withInput()->with('error', 'Update failed. Please try again.');
         }
-
-        // Update user
-        $client->user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ]);
-
-        // Update client
-        $client->update([
-            'phone_number' => $validated['phone_number'],
-            'gender' => $validated['gender'],
-            'country' => $validated['country'],
-        ]);
-
-        return redirect()->route('clients.show', $client)
-            ->with('success', 'Client updated successfully.');
     }
 
     // ============== Remove the specified resource from storage ==============
@@ -208,16 +230,29 @@ class ClientController extends Controller
             );
         }
 
-        // Delete avatar if exists
-        if ($client->avatar_image) {
-            Storage::disk('public')->delete($client->avatar_image);
+        try {
+            DB::beginTransaction();
+
+            $avatarPath = $client->avatar_image;
+            $userId = $client->user->id;
+
+            // Delete user (which will cascade to client via morph)
+            $client->user()->delete();
+
+            DB::commit();
+
+            // Delete avatar after successful deletion
+            if ($avatarPath) {
+                Storage::disk('public')->delete($avatarPath);
+            }
+
+            return redirect()->route('clients.index')
+                ->with('success', 'Client deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Deletion failed. Please try again.');
         }
 
-        // Delete user (which will cascade to client via morph)
-        $client->user()->delete();
-
-        return redirect()->route('clients.index')
-            ->with('success', 'Client deleted successfully.');
     }
 
     ///===================================================== Approval Methods =====================================================================
@@ -264,7 +299,7 @@ class ClientController extends Controller
     public function dashboard()
     {
         // Get the authenticated user
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Check if user has a client profile
         if (!$user || $user->profile_type !== Client::class) {
@@ -277,7 +312,7 @@ class ClientController extends Controller
 
         return Inertia::render('Clients/Dashboard', [
             'client' => $client,
-            'pendingReservations' => $client->reservations()->count(),
+            'pendingReservations' => $client->reservations()->where('status', 'pending')->count(),
             'upcomingReservations' => $client->reservations()
                 ->where('check_in_date', '>=', now())
                 ->orderBy('check_in_date')
