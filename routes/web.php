@@ -10,6 +10,7 @@ use App\Http\Controllers\StripeController;
 use App\Http\Controllers\ReceptionistController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -63,7 +64,7 @@ Route::middleware(['role:manager'])->group(function () {
 ///===================================================== Client Routes =========================================================
 
 Route::get('/client-dashboard', [ClientController::class, 'dashboard'])
-    ->middleware(['auth', 'role:client'])
+    ->middleware(['auth', 'role:manager', 'role:client'])
     ->name('client.dashboard');
 
 Route::resource('clients', ClientController::class)
@@ -83,6 +84,15 @@ Route::post('register', [ClientController::class, 'store'])
 Route::post('clients/{client}/approve', [ClientController::class, 'approve'])
     ->name('clients.approve')
     ->middleware('auth');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // For clients
+    Route::middleware(['role:client'])->group(function () {
+        Route::get('/make-reservation', [ReservationController::class, 'availableRooms'])
+            ->name('reservations.available-rooms');
+    });
+});
+
 
 // Reservation routes
 Route::prefix('reservations')->name('reservations.')->group(function () {

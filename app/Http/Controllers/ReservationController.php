@@ -217,4 +217,34 @@ class ReservationController extends Controller
         return redirect()->route('reservations.index')
             ->with('success', 'Reservation cancelled successfully.');
     }
+
+
+
+    /**
+ * Show available rooms for reservation
+ */
+public function availableRooms()
+{
+    $this->authorize('create', Reservation::class);
+
+    $availableRooms = Room::whereDoesntHave('reservations', function($query) {
+        $query->where('check_out_date', '>', now());
+    })
+    ->with('floor')
+    ->orderBy('number')
+    ->get()
+    ->map(function($room) {
+        return [
+            'id' => $room->id,
+            'number' => $room->number,
+            'floor_name' => $room->floor->name ?? 'Floor '.$room->floor->number,
+            'capacity' => $room->capacity,
+            'price' => $room->price,
+        ];
+    });
+
+    return Inertia::render('Clients/MakeReservation', [
+        'availableRooms' => $availableRooms,
+    ]);
+}
 }
