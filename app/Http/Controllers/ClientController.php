@@ -204,7 +204,7 @@ class ClientController extends Controller
             return back()->with(
                 'error',
                 'Cannot delete client with active reservations. ' .
-                    'Please delete their reservations first.'
+                'Please delete their reservations first.'
             );
         }
 
@@ -260,29 +260,29 @@ class ClientController extends Controller
         ]);
     }
 
-        //======== Show client  Dashboard  ==============
-        public function dashboard()
-        {
-            // Get the authenticated user
-            $user = auth()->user();
-            
-            // Check if user has a client profile
-            if (!$user || $user->profile_type !== Client::class) {
-                abort(403, 'Unauthorized access');
-            }
-        
-            // Load the client with relationships
-            $client = Client::with(['user', 'reservations.room.floor'])
-                        ->findOrFail($user->profile_id);
-        
-            return Inertia::render('Clients/Dashboard', [
-                'client' => $client,
-                'pendingReservations' => $client->reservations()->where('status', 'pending')->count(),
-                'upcomingReservations' => $client->reservations()
-                                            ->where('check_in_date', '>=', now())
-                                            ->orderBy('check_in_date')
-                                            ->take(3)
-                                            ->get()
-            ]);
+    //======== Show client  Dashboard  ==============
+    public function dashboard()
+    {
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // Check if user has a client profile
+        if (!$user || $user->profile_type !== Client::class) {
+            abort(403, 'Unauthorized access');
         }
+
+        // Load the client with relationships
+        $client = Client::with(['user', 'reservations.room.floor'])
+            ->findOrFail($user->profile_id);
+
+        return Inertia::render('Clients/Dashboard', [
+            'client' => $client,
+            'pendingReservations' => $client->reservations()->count(),
+            'upcomingReservations' => $client->reservations()
+                ->where('check_in_date', '>=', now())
+                ->orderBy('check_in_date')
+                ->take(3)
+                ->get()
+        ]);
+    }
 }

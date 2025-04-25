@@ -41,8 +41,8 @@ class ReceptionistController extends Controller
                 $receptionist = Receptionist::create([
                     'national_id' => $validated['national_id'],
                     'phone_number' => $validated['phone_number'],
-                    'avatar_image' => isset($validated['avatar_image']) ? 
-                        preg_replace('/^data:image\/\w+;base64,/', '', $validated['avatar_image']) : 
+                    'avatar_image' => isset($validated['avatar_image']) ?
+                        preg_replace('/^data:image\/\w+;base64,/', '', $validated['avatar_image']) :
                         null
                 ]);
 
@@ -124,5 +124,10 @@ class ReceptionistController extends Controller
         });
 
         return redirect()->back()->with('success', 'Receptionist deleted successfully.');
+    }
+
+    public function dashboard()
+    {
+        return inertia('Receptionists/Dashboard');
     }
 }

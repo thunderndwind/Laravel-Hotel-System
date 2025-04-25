@@ -44,7 +44,7 @@ class FloorController extends Controller
             'search' => $search,
             'sort' => $sort,
             'user' => $user->id,
-            'admin' => $userRoleData['is_admin']
+            'admin' => $userRoleData['is_admin'] ?? false,
         ]));
 
         $floors = cache()->remember($cacheKey, 60, function () use ($user, $perPage, $search, $sort, $userRoleData) {
@@ -57,7 +57,7 @@ class FloorController extends Controller
                     'floors.created_at',
                     'floors.deleted_at'
                 ])
-                ->when($userRoleData['is_admin'], function ($query) {
+                ->when($userRoleData['is_admin'] ?? false, function ($query) {
                     $query->leftJoin('users', 'floors.manager_id', '=', 'users.id')
                         ->addSelect('users.name as manager_name');
                 })
@@ -75,37 +75,41 @@ class FloorController extends Controller
                     $query->where(function ($q) use ($search) {
                         $q->where('floors.name', 'like', $search)
                             ->orWhere('floors.number', 'like', $search)
-                            ->orWhere('users.name', 'like', $search);
+                            ->when($userRoleData['is_admin'] ?? false, function ($query) use ($search) {
+                                $query->orWhere('users.name', 'like', $search);
+                            });
                     });
                 });
 
             return $query->paginate($perPage)
                 ->through(function ($floor) use ($userRoleData, $user) {
-                    $isManagerOwner = $userRoleData['is_manager'] && $floor->manager_id === $user->id;
-                    $hasAccess = $userRoleData['is_admin'] || $isManagerOwner;
+                    $isManager = $userRoleData['is_manager'] ?? false;
+                    $isAdmin = $userRoleData['is_admin'] ?? false;
+                    $isManagerOwner = $isManager && $floor->manager_id === $user->id;
+                    $hasAccess = $isAdmin || $isManagerOwner;
 
                     return [
                         'id' => $floor->id,
                         'name' => $floor->name,
                         'number' => $floor->number,
-                        'manager' => $userRoleData['is_admin'] ? ($floor->manager_name ?? 'None') : null,
+                        'manager' => $isAdmin ? ($floor->manager_name ?? 'None') : null,
                         'created_at' => $floor->created_at->format('Y-m-d H:i'),
                         'can_edit' => $hasAccess,
                         'can_delete' => $hasAccess,
                         'show_actions' => $hasAccess,
                         'deleted_at' => $floor->deleted_at,
-                        'can_restore' => $floor->deleted_at && $userRoleData['is_admin']
+                        'can_restore' => $floor->deleted_at && $isAdmin
                     ];
                 });
         });
 
         return Inertia::render('Floors/Index', [
             'floors' => $floors,
-            'isAdmin' => $userRoleData['is_admin'],
+            'isAdmin' => $userRoleData['is_admin'] ?? false,
             'filters' => ['search' => $search, 'sort' => $sort],
             'can' => [
-                'create_floors' => $userRoleData['is_manager'] || $userRoleData['is_admin'],
-                'restore_floors' => $userRoleData['is_admin']
+                'create_floors' => ($userRoleData['is_manager'] ?? false) || ($userRoleData['is_admin'] ?? false),
+                'restore_floors' => $userRoleData['is_admin'] ?? false
             ],
         ]);
     }

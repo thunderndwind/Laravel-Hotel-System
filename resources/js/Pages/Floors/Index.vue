@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, h } from "vue";
+import { ref, computed, h, watch } from "vue";
 import { router, Link } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { DataTable } from "@/Components/ui/data-table";
@@ -29,8 +29,29 @@ const isLoading = ref(false);
 const sortBy = ref(props.filters?.sort || "-created_at");
 const filterOptions = ref(props.filters?.filter || {});
 
-// Add ref for last search value
 const lastSearchValue = ref("");
+
+const pagination = ref({
+    current_page: props.floors.current_page,
+    per_page: props.floors.per_page,
+    total: props.floors.total,
+    from: props.floors.from,
+    to: props.floors.to,
+});
+
+watch(
+    () => props.floors,
+    (newFloors) => {
+        pagination.value = {
+            current_page: newFloors.current_page,
+            per_page: newFloors.per_page,
+            total: newFloors.total,
+            from: newFloors.from,
+            to: newFloors.to,
+        };
+    },
+    { immediate: true },
+);
 
 // Optimized search handler with value comparison
 const handleSearch = debounce((value) => {
@@ -184,14 +205,6 @@ const columns = computed(() => [
         },
     },
 ]);
-
-const pagination = ref({
-    current_page: props.floors.current_page,
-    per_page: props.floors.per_page,
-    total: props.floors.total,
-    from: props.floors.from,
-    to: props.floors.to,
-});
 
 const handlePaginationChange = (newPagination) => {
     isLoading.value = true;

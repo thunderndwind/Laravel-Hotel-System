@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, h } from "vue";
+import { ref, computed, h, watch } from "vue";
 import { router } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { DataTable } from "@/Components/ui/data-table";
@@ -28,7 +28,30 @@ const isLoading = ref(false);
 const sortBy = ref(props.filters?.sort || "-created_at");
 const lastSearchValue = ref("");
 
-// Optimized search handler
+const pagination = ref({
+    current_page: props.rooms.current_page,
+    per_page: props.rooms.per_page,
+    total: props.rooms.total,
+    from: props.rooms.from,
+    to: props.rooms.to,
+    last_page: props.rooms.last_page,
+});
+
+watch(
+    () => props.rooms,
+    (newRooms) => {
+        pagination.value = {
+            current_page: newRooms.current_page,
+            per_page: newRooms.per_page,
+            total: newRooms.total,
+            from: newRooms.from,
+            to: newRooms.to,
+            last_page: newRooms.last_page,
+        };
+    },
+    { immediate: true },
+);
+
 const handleSearch = debounce((value) => {
     if (isLoading.value || value === lastSearchValue.value) return;
 
@@ -152,15 +175,6 @@ const columns = computed(() => [
         },
     },
 ]);
-
-const pagination = ref({
-    current_page: props.rooms.current_page,
-    per_page: props.rooms.per_page,
-    total: props.rooms.total,
-    from: props.rooms.from,
-    to: props.rooms.to,
-    last_page: props.rooms.last_page,
-});
 
 const handleSort = (column) => {
     const direction = sortBy.value === column ? `-${column}` : column;
