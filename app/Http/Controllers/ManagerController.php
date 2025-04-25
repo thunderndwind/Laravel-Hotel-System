@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedSort;
 
@@ -129,8 +130,24 @@ class ManagerController extends Controller
     {
         $this->authorize('view', $manager);
 
+        $avatarPath = $manager->avatar_image 
+            ? '/storage/' . $manager->avatar_image 
+            : '/storage/avatars/Default.png';
+
         return Inertia::render('Managers/Show', [
-            'manager' => $manager->load('user')
+            'manager' => [
+                'id' => $manager->id,
+                'national_id' => $manager->national_id,
+                'phone_number' => $manager->phone_number,
+                'avatar_image' => $avatarPath,
+                'user' => [
+                    'name' => $manager->user->name,
+                    'email' => $manager->user->email,
+                ]
+            ],
+            'can' => [
+                'update' => Auth::user()->can('update', $manager)
+            ]
         ]);
     }
 
@@ -138,12 +155,16 @@ class ManagerController extends Controller
     {
         $this->authorize('update', $manager);
 
+        $avatarPath = $manager->avatar_image 
+            ? '/storage/' . $manager->avatar_image 
+            : '/storage/avatars/Default.png';
+
         return Inertia::render('Managers/Edit', [
             'manager' => [
                 'id' => $manager->id,
                 'national_id' => $manager->national_id,
                 'phone_number' => $manager->phone_number,
-                'avatar_image' => $manager->avatar_image,
+                'avatar_image' => $avatarPath,
                 'name' => $manager->user->name,
                 'email' => $manager->user->email,
             ]
@@ -154,8 +175,21 @@ class ManagerController extends Controller
     {
         $this->authorize('update', $manager);
 
-        $manager->update($request->validated());
+        if ($request->hasFile('avatar_image')) {
+            if ($manager->avatar_image && $manager->avatar_image !== 'avatars/Default.png') {
+                Storage::disk('public')->delete($manager->avatar_image);
+            }
+            $avatarPath = $request->file('avatar_image')->store('avatars', 'public');
+            $manager->avatar_image = $avatarPath;
+        } else {
+            $manager->avatar_image = $manager->avatar_image ?: 'avatars/Default.png';
+        }
 
+        $manager->update([
+            'national_id' => $request->national_id,
+            'phone_number' => $request->phone_number,
+            'avatar_image' => $manager->avatar_image
+        ]);
         if ($manager->user) {
             $manager->user->update([
                 'name' => $request->name,
@@ -163,7 +197,7 @@ class ManagerController extends Controller
             ]);
         }
 
-        return redirect()->route('managers.index');
+        return redirect()->route('managers.index')->with('success', 'Manager updated successfully.');
     }
 
     public function destroy(Manager $manager)

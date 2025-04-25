@@ -15,7 +15,7 @@ class StoreManagerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'national_id' => ['required', 'digits:9', 'unique:managers,national_id'],
+            'national_id' => ['required', 'string', 'min:15', 'max:25', 'unique:managers,national_id'],
             'phone_number' => ['required'],
             'avatar_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'name' => ['required', 'string', 'max:255'],
@@ -28,7 +28,8 @@ class StoreManagerRequest extends FormRequest
     {
         return [
             'national_id.required' => 'National ID is required.',
-            'national_id.digits' => 'National ID must be exactly 9 digits.',
+            'national_id.min' => 'National ID must be at least 15 characters.',
+            'national_id.max' => 'National ID must not exceed 25 characters.',
             'national_id.unique' => 'This national ID is already in use.',
 
             'phone_number.required' => 'Phone number is required.',
